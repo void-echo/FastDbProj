@@ -1,0 +1,177 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.echo.fastdbproj.dao.DriverDao">
+
+    <resultMap type="com.echo.fastdbproj.entity.Driver" id="DriverMap">
+        <result property="id" column="id" jdbcType="VARCHAR"/>
+        <result property="name" column="name" jdbcType="VARCHAR"/>
+        <result property="tel" column="tel" jdbcType="VARCHAR"/>
+        <result property="mail" column="mail" jdbcType="VARCHAR"/>
+        <result property="runTimes" column="run_times" jdbcType="INTEGER"/>
+        <result property="passwordSha256" column="password_sha256" jdbcType="VARCHAR"/>
+        <result property="preferPlace" column="prefer_place" jdbcType="VARCHAR"/>
+        <result property="score" column="score" jdbcType="NUMERIC"/>
+        <result property="carId" column="car_id" jdbcType="VARCHAR"/>
+    </resultMap>
+
+    <!--查询单个-->
+    <select id="queryById" resultMap="DriverMap">
+        select id,
+               name,
+               tel,
+               mail,
+               run_times,
+               password_sha256,
+               prefer_place,
+               score,
+               car_id
+        from driver
+        where id = #{id}
+    </select>
+
+    <!--查询指定行数据-->
+    <select id="queryAllByLimit" resultMap="DriverMap">
+        select
+        id, name, tel, mail, run_times, password_sha256, prefer_place, score, car_id
+        from driver
+        <where>
+            <if test="id != null and id != ''">
+                and id = #{id}
+            </if>
+            <if test="name != null and name != ''">
+                and name = #{name}
+            </if>
+            <if test="tel != null and tel != ''">
+                and tel = #{tel}
+            </if>
+            <if test="mail != null and mail != ''">
+                and mail = #{mail}
+            </if>
+            <if test="runTimes != null">
+                and run_times = #{runTimes}
+            </if>
+            <if test="passwordSha256 != null and passwordSha256 != ''">
+                and password_sha256 = #{passwordSha256}
+            </if>
+            <if test="preferPlace != null and preferPlace != ''">
+                and prefer_place = #{preferPlace}
+            </if>
+            <if test="score != null">
+                and score = #{score}
+            </if>
+            <if test="carId != null and carId != ''">
+                and car_id = #{carId}
+            </if>
+        </where>
+        limit #{pageable.offset}, #{pageable.pageSize}
+    </select>
+
+    <!--统计总行数-->
+    <select id="count" resultType="java.lang.Long">
+        select count(1)
+        from driver
+        <where>
+            <if test="id != null and id != ''">
+                and id = #{id}
+            </if>
+            <if test="name != null and name != ''">
+                and name = #{name}
+            </if>
+            <if test="tel != null and tel != ''">
+                and tel = #{tel}
+            </if>
+            <if test="mail != null and mail != ''">
+                and mail = #{mail}
+            </if>
+            <if test="runTimes != null">
+                and run_times = #{runTimes}
+            </if>
+            <if test="passwordSha256 != null and passwordSha256 != ''">
+                and password_sha256 = #{passwordSha256}
+            </if>
+            <if test="preferPlace != null and preferPlace != ''">
+                and prefer_place = #{preferPlace}
+            </if>
+            <if test="score != null">
+                and score = #{score}
+            </if>
+            <if test="carId != null and carId != ''">
+                and car_id = #{carId}
+            </if>
+        </where>
+    </select>
+
+    <!--新增所有列-->
+    <insert id="insert" keyProperty="id" useGeneratedKeys="true">
+        insert into driver(name, tel, mail, run_times, password_sha256, prefer_place, score, car_id)
+        values (#{name}, #{tel}, #{mail}, #{runTimes}, #{passwordSha256}, #{preferPlace}, #{score}, #{carId})
+    </insert>
+
+    <insert id="insertBatch" keyProperty="id" useGeneratedKeys="true">
+        insert into driver(name, tel, mail, run_times, password_sha256, prefer_place, score, car_id)
+        values
+        <foreach collection="entities" item="entity" separator=",">
+            (#{entity.name}, #{entity.tel}, #{entity.mail}, #{entity.runTimes}, #{entity.passwordSha256},
+            #{entity.preferPlace}, #{entity.score}, #{entity.carId})
+        </foreach>
+    </insert>
+
+    <insert id="insertOrUpdateBatch" keyProperty="id" useGeneratedKeys="true">
+        insert into driver(name, tel, mail, run_times, password_sha256, prefer_place, score, car_id)
+        values
+        <foreach collection="entities" item="entity" separator=",">
+            (#{entity.name}, #{entity.tel}, #{entity.mail}, #{entity.runTimes}, #{entity.passwordSha256},
+            #{entity.preferPlace}, #{entity.score}, #{entity.carId})
+        </foreach>
+        on duplicate key update
+        name = values(name),
+        tel = values(tel),
+        mail = values(mail),
+        run_times = values(run_times),
+        password_sha256 = values(password_sha256),
+        prefer_place = values(prefer_place),
+        score = values(score),
+        car_id = values(car_id)
+    </insert>
+
+    <!--通过主键修改数据-->
+    <update id="update">
+        update driver
+        <set>
+            <if test="name != null and name != ''">
+                name = #{name},
+            </if>
+            <if test="tel != null and tel != ''">
+                tel = #{tel},
+            </if>
+            <if test="mail != null and mail != ''">
+                mail = #{mail},
+            </if>
+            <if test="runTimes != null">
+                run_times = #{runTimes},
+            </if>
+            <if test="passwordSha256 != null and passwordSha256 != ''">
+                password_sha256 = #{passwordSha256},
+            </if>
+            <if test="preferPlace != null and preferPlace != ''">
+                prefer_place = #{preferPlace},
+            </if>
+            <if test="score != null">
+                score = #{score},
+            </if>
+            <if test="carId != null and carId != ''">
+                car_id = #{carId},
+            </if>
+        </set>
+        where id = #{id}
+    </update>
+
+    <!--通过主键删除-->
+    <delete id="deleteById">
+        delete
+        from driver
+        where id = #{id}
+    </delete>
+
+</mapper>
+

@@ -1,0 +1,127 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.echo.fastdbproj.dao.CarDao">
+
+    <resultMap type="com.echo.fastdbproj.entity.Car" id="CarMap">
+        <result property="id" column="id" jdbcType="VARCHAR"/>
+        <result property="startUsingTime" column="start_using_time" jdbcType="VARCHAR"/>
+        <result property="band" column="band" jdbcType="VARCHAR"/>
+        <result property="maxSpeed" column="max_speed" jdbcType="INTEGER"/>
+        <result property="carType" column="car_type" jdbcType="VARCHAR"/>
+    </resultMap>
+
+    <!--查询单个-->
+    <select id="queryById" resultMap="CarMap">
+        select id,
+               start_using_time,
+               band,
+               max_speed,
+               car_type
+        from car
+        where id = #{id}
+    </select>
+
+    <!--查询指定行数据-->
+    <select id="queryAllByLimit" resultMap="CarMap">
+        select
+        id, start_using_time, band, max_speed, car_type
+        from car
+        <where>
+            <if test="id != null and id != ''">
+                and id = #{id}
+            </if>
+            <if test="startUsingTime != null and startUsingTime != ''">
+                and start_using_time = #{startUsingTime}
+            </if>
+            <if test="band != null and band != ''">
+                and band = #{band}
+            </if>
+            <if test="maxSpeed != null">
+                and max_speed = #{maxSpeed}
+            </if>
+            <if test="carType != null and carType != ''">
+                and car_type = #{carType}
+            </if>
+        </where>
+        limit #{pageable.offset}, #{pageable.pageSize}
+    </select>
+
+    <!--统计总行数-->
+    <select id="count" resultType="java.lang.Long">
+        select count(1)
+        from car
+        <where>
+            <if test="id != null and id != ''">
+                and id = #{id}
+            </if>
+            <if test="startUsingTime != null and startUsingTime != ''">
+                and start_using_time = #{startUsingTime}
+            </if>
+            <if test="band != null and band != ''">
+                and band = #{band}
+            </if>
+            <if test="maxSpeed != null">
+                and max_speed = #{maxSpeed}
+            </if>
+            <if test="carType != null and carType != ''">
+                and car_type = #{carType}
+            </if>
+        </where>
+    </select>
+
+    <!--新增所有列-->
+    <insert id="insert" keyProperty="id" useGeneratedKeys="true">
+        insert into car(start_using_time, band, max_speed, car_type)
+        values (#{startUsingTime}, #{band}, #{maxSpeed}, #{carType})
+    </insert>
+
+    <insert id="insertBatch" keyProperty="id" useGeneratedKeys="true">
+        insert into car(start_using_time, band, max_speed, car_type)
+        values
+        <foreach collection="entities" item="entity" separator=",">
+            (#{entity.startUsingTime}, #{entity.band}, #{entity.maxSpeed}, #{entity.carType})
+        </foreach>
+    </insert>
+
+    <insert id="insertOrUpdateBatch" keyProperty="id" useGeneratedKeys="true">
+        insert into car(start_using_time, band, max_speed, car_type)
+        values
+        <foreach collection="entities" item="entity" separator=",">
+            (#{entity.startUsingTime}, #{entity.band}, #{entity.maxSpeed}, #{entity.carType})
+        </foreach>
+        on duplicate key update
+        start_using_time = values(start_using_time),
+        band = values(band),
+        max_speed = values(max_speed),
+        car_type = values(car_type)
+    </insert>
+
+    <!--通过主键修改数据-->
+    <update id="update">
+        update car
+        <set>
+            <if test="startUsingTime != null and startUsingTime != ''">
+                start_using_time = #{startUsingTime},
+            </if>
+            <if test="band != null and band != ''">
+                band = #{band},
+            </if>
+            <if test="maxSpeed != null">
+                max_speed = #{maxSpeed},
+            </if>
+            <if test="carType != null and carType != ''">
+                car_type = #{carType},
+            </if>
+        </set>
+        where id = #{id}
+    </update>
+
+    <!--通过主键删除-->
+    <delete id="deleteById">
+        delete
+        from car
+        where id = #{id}
+    </delete>
+
+</mapper>
+
