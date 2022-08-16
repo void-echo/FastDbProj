@@ -1,9 +1,8 @@
 package com.echo.fastdbproj.controller;
 
-import cn.dev33.satoken.stp.StpUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
-import org.springframework.util.ResourceUtils;
+import org.springframework.core.io.Resource;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
@@ -36,7 +35,14 @@ public class FileController {
             return entries.findAny().isEmpty();
         }
     }
-//    @RequestMapping("get")
+
+    @RequestMapping("get-pic")
+    public Resource getPic() {
+
+        return null;
+    }
+
+
 
 
     @RequestMapping("upload")
@@ -44,9 +50,12 @@ public class FileController {
                              RedirectAttributes redirectAttributes,
                              String userId,
                              Optional<String> type) throws FileNotFoundException {
-        var loggedIn = StpUtil.isLogin();
         String _type = type.orElse("customer");
-        if (!loggedIn || !typeSet.contains(_type)) return "Not available. Access denied";
+        //        var loggedIn = StpUtil.isLogin();
+        if ( !typeSet.contains(_type)) {
+            System.err.println("User ID:" + userId +" Not log in");
+            return "Not available. Access denied";
+        }
         if (file.isEmpty()) {
             redirectAttributes.addFlashAttribute("message", "Please select a file to upload");
             return "redirect:uploadStatus";
@@ -54,7 +63,9 @@ public class FileController {
 
         try {
             // Get the file and save it somewhere
+
             var dirPath = Paths.get(UPLOADED_FOLDER + _type + "\\" + userId + "\\");
+            Files.createDirectories(dirPath);
             if (!isEmptyDirectory(dirPath)) {
                 FileUtils.deleteDirectory(new File(String.valueOf(dirPath)));
             }
