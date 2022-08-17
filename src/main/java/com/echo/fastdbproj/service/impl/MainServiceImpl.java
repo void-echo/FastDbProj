@@ -1,6 +1,7 @@
 package com.echo.fastdbproj.service.impl;
 
 import com.echo.fastdbproj.service.MainService;
+import com.echo.fastdbproj.util.BinUtils;
 import com.echo.fastdbproj.util.JsonProvider;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
@@ -13,7 +14,7 @@ public class MainServiceImpl implements MainService {
     Map<String, List<Double>> driverPlaceMap, customerPlaceMap;
     Set<String> busyDriverIds = new HashSet<>(), busyCustomerIds = new HashSet<>();
     Map<String, String> binder = new HashMap<>();
-
+    BinUtils utils;
     JsonProvider json;
 
 
@@ -47,6 +48,17 @@ public class MainServiceImpl implements MainService {
     @Override
     public String getGoingCustomerPlaceOf(String id) {
         return json.toJson(customerPlaceMap.get(id));
+    }
+
+    @Override
+    public List<String> getChiKaiKuRuMasOfKyaKu(String kyaId, double lng, double lat) {
+        List<String> driverIds = new ArrayList<>(driverPlaceMap.keySet());
+        driverIds.removeIf(busyDriverIds::contains);
+        driverIds.sort((a, b) ->
+                Double.compare(utils.calcDistance(driverPlaceMap.get(a).get(0), driverPlaceMap.get(a).get(1), lng, lat),
+                 (utils.calcDistance(driverPlaceMap.get(b).get(0), driverPlaceMap.get(b).get(1), lng, lat)))
+        );
+        return driverIds;
     }
 
     @Override
@@ -104,5 +116,10 @@ public class MainServiceImpl implements MainService {
     @Autowired
     public void setJson(JsonProvider provider) {
         this.json = provider;
+    }
+
+    @Autowired
+    public void setUtils(BinUtils utils) {
+        this.utils = utils;
     }
 }

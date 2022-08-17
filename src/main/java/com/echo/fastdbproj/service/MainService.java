@@ -1,5 +1,7 @@
 package com.echo.fastdbproj.service;
 
+import java.util.List;
+
 public interface MainService {
     String getFreeDriverPlaces();   // return map json
 
@@ -10,6 +12,8 @@ public interface MainService {
     String getGoingCustomerPlaceOf(String id);  // return map json
 
     void updateDriverPlace(String id, double lng, double lat);
+
+    List<String> getChiKaiKuRuMasOfKyaKu(String kyaId, double lng, double lat);
 
     void updateCustomerPlace(String id, double lng, double lat);
 
