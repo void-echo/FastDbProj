@@ -28,4 +28,10 @@ public interface MainService {
     void bind(String driverId, String customerId);
 
     void unBind(String driverId, String customerId);
+
+    void dualUpdate(String driverId, double lng, double lat);
+
+    boolean idIsUsed(String id);
+
+    String getDualCustomerIdOfWorkingDriver(String driverId);
 }

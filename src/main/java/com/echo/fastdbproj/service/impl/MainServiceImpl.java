@@ -13,13 +13,18 @@ import java.util.*;
 public class MainServiceImpl implements MainService {
     Map<String, List<Double>> driverPlaceMap, customerPlaceMap;
     Set<String> busyDriverIds = new HashSet<>(), busyCustomerIds = new HashSet<>();
-    Map<String, String> binder = new HashMap<>();
+    public Map<String, String> binder = new HashMap<>();
     BinUtils utils;
     JsonProvider json;
 
 
     public static void main(String[] args) {
 
+    }
+
+    public MainServiceImpl() {
+        this.driverPlaceMap = new HashMap<>();
+        this.customerPlaceMap = new HashMap<>();
     }
 
     @Override
@@ -42,7 +47,8 @@ public class MainServiceImpl implements MainService {
 
     @Override
     public String getWorkingDriverPlaceOf(String id) {
-        return json.toJson(driverPlaceMap.get(id));
+        var li = driverPlaceMap.get(id);
+        return  li.get(0) + " , " + li.get(1);
     }
 
     @Override
@@ -93,25 +99,29 @@ public class MainServiceImpl implements MainService {
 
     @Override
     public void bind(String driverId, String customerId) {
-        this.binder.put(driverId, customerId);
+        busyCustomerIds.add(customerId);
+        busyDriverIds.add(driverId);
+        binder.put(driverId, customerId);
+    }
+
+    @Override
+    public void dualUpdate(String driverId, double lng, double lat) {
+        this.updateDriverPlace(driverId, lng, lat);
+        this.updateCustomerPlace(this.binder.get(driverId), lng, lat);
     }
 
     @Override
     public void unBind(String driverId, String customerId) {
-        this.binder.remove(driverId, customerId);
+        binder.remove(driverId, customerId);
+        busyDriverIds.remove(driverId);
+        busyCustomerIds.remove(customerId);
     }
 
-    @Autowired
-    @Qualifier("mapD")
-    public void setDriverPlaceMap(Map<String, List<Double>> driverPlaceMap) {
-        this.driverPlaceMap = driverPlaceMap;
+    @Override
+    public boolean idIsUsed(String id) {
+        return false;
     }
 
-    @Autowired
-    @Qualifier("mapC")
-    public void setCustomerPlaceMap(Map<String, List<Double>> customerPlaceMap) {
-        this.customerPlaceMap = customerPlaceMap;
-    }
 
     @Autowired
     public void setJson(JsonProvider provider) {
@@ -121,5 +131,10 @@ public class MainServiceImpl implements MainService {
     @Autowired
     public void setUtils(BinUtils utils) {
         this.utils = utils;
+    }
+
+    @Override
+    public String getDualCustomerIdOfWorkingDriver(String driverId) {
+        return binder.get(driverId);
     }
 }

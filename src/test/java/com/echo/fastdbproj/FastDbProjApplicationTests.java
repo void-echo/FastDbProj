@@ -1,13 +1,17 @@
 package com.echo.fastdbproj;
 
+import com.echo.fastdbproj.dao.CustomerDao;
+import com.echo.fastdbproj.entity.Customer;
 import com.echo.fastdbproj.service.MainService;
 import com.echo.fastdbproj.service.impl.MainServiceImpl;
+import com.echo.fastdbproj.util.JsonProvider;
 import com.sun.tools.javac.Main;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.util.ResourceUtils;
 
+import javax.annotation.Resource;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.util.ArrayList;
@@ -17,16 +21,14 @@ import java.util.List;
 class FastDbProjApplicationTests {
 
 	MainService mainService;
+
+	@Resource
+	CustomerDao customerDao;
+
 	@Test
 	void contextLoads() {
-		mainService.updateCustomerPlace("123123", 123.123, 123.123);
-		mainService.updateDriverPlace("D123", 123.12, 123.14);
-		mainService.updateDriverPlace("D124", 12.12, 123.14);
-		mainService.updateDriverPlace("D125", 120.12, 123.14);
-		mainService.updateDriverPlace("D126", 121.12, 123.14);
-		List<String> chiKaiKuRuMasOfKyaKu = mainService.getChiKaiKuRuMasOfKyaKu(
-				"123123", 123.123, 123.123);
-		chiKaiKuRuMasOfKyaKu.forEach(System.out::println);
+		Customer customer = customerDao.queryById("void-echo");
+		System.out.println(new JsonProvider().toJson(customer));
 	}
 
 	@Autowired
