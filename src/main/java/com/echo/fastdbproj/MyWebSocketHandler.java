@@ -1,13 +1,11 @@
 package com.echo.fastdbproj;
 
-import com.echo.fastdbproj.entity.Car;
 import com.echo.fastdbproj.entity.Customer;
 import com.echo.fastdbproj.entity.Driver;
 import com.echo.fastdbproj.service.CustomerService;
 import com.echo.fastdbproj.service.DriverService;
 import com.echo.fastdbproj.service.MainService;
 import com.echo.fastdbproj.util.BinUtils;
-import com.echo.fastdbproj.util.JsonProvider;
 import com.echo.fastdbproj.util.UnitedLog;
 import org.jetbrains.annotations.NotNull;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -24,7 +22,6 @@ import java.util.concurrent.Executor;
 
 @Component
 public class MyWebSocketHandler implements WebSocketHandler {
-    JsonProvider jsonProvider;
     MainService mainService;
 
     ConcurrentHashMap<String, WebSocketSession> id2session;
@@ -44,15 +41,6 @@ public class MyWebSocketHandler implements WebSocketHandler {
     BinUtils binUtil;
 
 
-    public static void main(String[] args) {
-        Driver driver = new Driver();
-        driver.setCarId("123123123CAR");
-        driver.setId("IOP123098");
-        driver.setName("WD");
-        JsonProvider jsp = new JsonProvider();
-        TextMessage tms = new TextMessage(jsp.toJson(driver));
-        System.out.println(tms.getPayload());
-    }
 
     public MyWebSocketHandler() {
         id2session = new ConcurrentHashMap<>();
@@ -63,8 +51,17 @@ public class MyWebSocketHandler implements WebSocketHandler {
         id2CarJsonIncludeBase64 = new HashMap<>();
     }
 
-    public void send2driver4billCatch(String preBillId, String send2driverId, String customerId, double lng, double lat) throws IOException {
-        id2session.get(send2driverId).sendMessage(new TextMessage("preBillId: " + preBillId + " , customerId: " + customerId + " , lng: " + lng + " , lat: " + lat));
+    public void send2driver4billCatch(String preBillId, String send2driverId, String customerId, double lng, double lat, double lng2, double lat2) throws IOException {
+        UnitedLog.print(send2driverId);
+        id2session.get(send2driverId).sendMessage(new TextMessage(
+                "{ \"preBillId\": \"" + preBillId
+                        + "\" , \"customerId\": \"" + customerId
+                        + "\" , \"lng\": " + lng
+                        + " , \"lat\": " + lat
+                        + " , \"lng2\": " + lng2
+                        + " , \"lat2\": " + lat2
+                        + "}"
+        ));
     }
 
     public void send2customer(String customerId, String msg) throws IOException {
@@ -74,18 +71,21 @@ public class MyWebSocketHandler implements WebSocketHandler {
 
     @Override
     public void afterConnectionEstablished(@NotNull WebSocketSession session) {
-        System.out.println("链接 ID: " + session.getId() + ";  URI: " + session.getUri() + " 建立成功");
+        UnitedLog.print("链接 ID: " + session.getId() + ";  URI: " + session.getUri() + " 建立成功");
     }
 
     @Override
     public void handleMessage(@NotNull WebSocketSession session, @NotNull WebSocketMessage<?> message) throws IOException {
         var msg = message.getPayload();
-        System.out.println(msg);
+        UnitedLog.print(msg.toString());
         var sessionId = session.getId();
         if (msg instanceof String str) {
             if (!sessionIds.contains(sessionId)) {
                 sessionIds.add(sessionId);
                 var realId = binUtil.parseId(str);
+                if (!sessionId2Id.isEmpty()) {
+                    sessionId2Id.values().remove(realId);
+                }
                 id2session.put(realId, session);
                 sessionId2Id.put(sessionId, realId);
 
@@ -107,7 +107,7 @@ public class MyWebSocketHandler implements WebSocketHandler {
                 var driverId = sessionId2Id.get(sessionId);
                 mainService.dualUpdate(driverId, lngLat[0], lngLat[1]);
                 var customerId = mainService.getDualCustomerIdOfWorkingDriver(driverId);
-                id2session.get(customerId).sendMessage(new TextMessage("PLACE: " + lngLat[0] + ", " + lngLat[1]));
+                id2session.get(customerId).sendMessage(new TextMessage("{ \"lng\": " + lngLat[0] + ", \"lat\": " + lngLat[1] + " }"));
             }
         } else UnitedLog.err("Parsing ERR: Payload: " + msg + " is not a String.");
     }
@@ -124,7 +124,7 @@ public class MyWebSocketHandler implements WebSocketHandler {
         id2session.remove(realId);
         sessionId2Id.remove(sessionId);
         sessionIds.remove(sessionId);
-        System.out.println("链接 ID: " + session.getId() + ";  URI: " + session.getUri() + " 链接关闭");
+        UnitedLog.print("链接 ID: " + session.getId() + ";  URI: " + session.getUri() + " 链接关闭");
     }
 
     @Override
@@ -132,10 +132,6 @@ public class MyWebSocketHandler implements WebSocketHandler {
         return false;
     }
 
-    @Autowired
-    public void setProvider(JsonProvider provider) {
-        this.jsonProvider = provider;
-    }
 
     @Autowired
     public void setMainService(MainService mainService) {

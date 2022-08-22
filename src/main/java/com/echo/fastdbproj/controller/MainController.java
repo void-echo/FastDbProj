@@ -22,6 +22,8 @@ import java.util.Map;
 import java.util.concurrent.Executor;
 import java.util.concurrent.atomic.AtomicBoolean;
 
+import static java.lang.Thread.sleep;
+
 /**
  * Message Format:
  */
@@ -70,11 +72,14 @@ public class MainController {
         }
 
         customer.setPasswordSha256("");
+        Customer finalCustomer = customer;
+        exe.execute(() -> handler.id2customerDBCache.put(customerId, finalCustomer));
+
         return customer;
     }
 
     @RequestMapping("query4new-travel")
-    public void newTravel(String customerId, double lng, double lat) {
+    public void newTravel(String customerId, double lng, double lat, double lng2, double lat2) {
         var preBillId = LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss.SSS")) + customerId;
         var flag = new AtomicBoolean(false);
         handledMap.put(preBillId, flag);
@@ -83,8 +88,8 @@ public class MainController {
             try {
                 for (var driverId : availableDrivers) {
                     if (!flag.get()) {
-                        handler.send2driver4billCatch(preBillId, driverId, customerId, lng, lat);
-                        wait(3000);
+                        handler.send2driver4billCatch(preBillId, driverId, customerId, lng, lat, lng2, lat2);
+                        sleep(3000);
                     }
                 }
             } catch (IOException | InterruptedException e) {
@@ -93,8 +98,10 @@ public class MainController {
         });
     }
 
+
     @RequestMapping("handle-new-travel")
     public synchronized String handleNewTravel(String preBillId, String customerId, String driverId) {
+        UnitedLog.print("接单的司机的 ID: " + driverId);
         var flag = handledMap.get(preBillId);
         if (flag.get()) {
             var str = "ERR: preBillId " + preBillId + " had been handled";
@@ -104,9 +111,23 @@ public class MainController {
         flag.set(true);
         this.mainService.bind(driverId, customerId);
         exe.execute(() -> {
+            var driverPlace = mainService.getWorkingDriverPlaceOf(driverId).split(",");
+            for (var s : driverPlace) {
+                s = s.trim();
+            }
+            var lng = Double.parseDouble(driverPlace[0]);
+            var lat = Double.parseDouble(driverPlace[1]);
+            var msg =
+                    """
+                    {
+                         "ID": "%s",
+                         "lng": %f,
+                         "lat": %f
+                    }
+                    """.formatted(driverId, lng, lat);
+            UnitedLog.print(msg);
             try {
-                handler.send2customer(customerId, "ID: " + driverId);
-                handler.send2customer(customerId, "PLACE: " + mainService.getWorkingDriverPlaceOf(driverId));
+                handler.send2customer(customerId, msg);
             } catch (IOException e) {
                 throw new RuntimeException(e);
             }

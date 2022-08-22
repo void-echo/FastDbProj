@@ -1,5 +1,6 @@
 package com.echo.fastdbproj.controller;
 
+import com.echo.fastdbproj.util.UnitedLog;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.core.io.Resource;
@@ -14,8 +15,11 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.Base64;
+import java.util.List;
 import java.util.Optional;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 @RestController
 @CrossOrigin
@@ -37,9 +41,15 @@ public class FileController {
     }
 
     @RequestMapping("get-pic")
-    public Resource getPic() {
-
-        return null;
+    public String getPic(String type, String id) throws IOException {
+        if (!typeSet.contains(type)) {
+            UnitedLog.err("Cannot find pic file of " + type + " , " + id);
+        }
+        List<File> filesInFolder = Files.walk(Paths.get(UPLOADED_FOLDER +  type + "\\" + id))
+                .filter(Files::isRegularFile)
+                .map(Path::toFile).toList();
+        byte[] fileContents = FileUtils.readFileToByteArray(filesInFolder.get(0));
+        return Base64.getEncoder().encodeToString(fileContents);
     }
 
 
@@ -49,11 +59,11 @@ public class FileController {
     public String uploadFile(@RequestParam("file") MultipartFile file,
                              RedirectAttributes redirectAttributes,
                              String userId,
-                             Optional<String> type) throws FileNotFoundException {
+                             Optional<String> type) {
         String _type = type.orElse("customer");
         //        var loggedIn = StpUtil.isLogin();
         if ( !typeSet.contains(_type)) {
-            System.err.println("User ID:" + userId +" Not log in");
+            UnitedLog.err("User ID:" + userId +" Not log in");
             return "Not available. Access denied";
         }
         if (file.isEmpty()) {

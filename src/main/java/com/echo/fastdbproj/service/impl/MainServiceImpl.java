@@ -60,10 +60,13 @@ public class MainServiceImpl implements MainService {
     public List<String> getChiKaiKuRuMasOfKyaKu(String kyaId, double lng, double lat) {
         List<String> driverIds = new ArrayList<>(driverPlaceMap.keySet());
         driverIds.removeIf(busyDriverIds::contains);
+        driverIds.removeIf(Objects::isNull);
         driverIds.sort((a, b) ->
                 Double.compare(utils.calcDistance(driverPlaceMap.get(a).get(0), driverPlaceMap.get(a).get(1), lng, lat),
                  (utils.calcDistance(driverPlaceMap.get(b).get(0), driverPlaceMap.get(b).get(1), lng, lat)))
         );
+
+        driverIds.forEach((e) -> System.out.print(e + "\t"));
         return driverIds;
     }
 

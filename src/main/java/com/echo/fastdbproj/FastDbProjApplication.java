@@ -10,6 +10,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Lazy;
 import org.springframework.core.task.SimpleAsyncTaskExecutor;
 import org.springframework.web.socket.CloseStatus;
 import org.springframework.web.socket.WebSocketHandler;
@@ -29,12 +30,10 @@ import java.util.concurrent.Executor;
 @MapperScan("com.echo.fastdbproj.dao")
 @EnableWebSocket
 public class FastDbProjApplication implements WebSocketConfigurer {
-    JsonProvider provider;
     MyWebSocketHandler handler;
 
     public static void main(String[] args) {
         SpringApplication.run(FastDbProjApplication.class, args);
-        System.out.println();
     }
 
     @Override
@@ -55,12 +54,7 @@ public class FastDbProjApplication implements WebSocketConfigurer {
 
 
     @Autowired
-    public void setProvider(JsonProvider provider) {
-        this.provider = provider;
-    }
-
-    @Autowired
-    public void setHandler(MyWebSocketHandler handler) {
+    public void setHandler(@Lazy MyWebSocketHandler handler) {
         this.handler = handler;
     }
 

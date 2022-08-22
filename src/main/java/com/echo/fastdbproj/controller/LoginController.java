@@ -51,28 +51,30 @@ public class LoginController {
     }
 
 
-    // 查询登录状态  ---- http://localhost:8081/acc/isLogin
-//    @RequestMapping("isLogin")
-//    public SaResult isLogin(String id) {
-//        return SaResult.ok("是否登录：" + isIn(id));
-//    }
-//    // 测试注销  ---- http://localhost:8081/acc/logout
-//    @RequestMapping("logout")
-//    public SaResult logout(String id) {
-//        out(id);
-//        return SaResult.ok();
-//    }
     @RequestMapping("login")
     public String login(String user, String pwdSha, Optional<String> userType) {
         String type = userType.orElse("customer");
         String dbSha = switch (type) {
-            case "driver" -> driverService.queryById(user).getPasswordSha256();
-            case "admin" -> adminService.queryById(user).getPasswordSha256();
-            default -> customerService.queryById(user).getPasswordSha256();
+            case "driver" -> {
+                var dbDriver = driverService.queryById(user);
+                if (dbDriver == null) {
+                    yield null;
+                }
+                yield dbDriver.getPasswordSha256();
+            }
+            case "admin" -> {
+                var dbAdmin =  adminService.queryById(user);
+                yield dbAdmin == null ? null : dbAdmin.getPasswordSha256();
+            }
+            default -> {
+                var dbCustomer = customerService.queryById(user);
+                if (dbCustomer == null) {
+                    yield null;
+                }
+               yield  dbCustomer.getPasswordSha256();
+            }
         };
         if ( dbSha == null || pwdSha == null ) return "failed";
-        System.out.println("dbSha:  " + dbSha);
-        System.out.println("pwdSha:  " + dbSha);
         var flag = sha.checkSHA(dbSha, pwdSha);
         if (flag) {
             in(user);
