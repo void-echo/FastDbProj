@@ -3,6 +3,7 @@ package com.echo.fastdbproj.service.impl;
 import com.echo.fastdbproj.service.MainService;
 import com.echo.fastdbproj.util.BinUtils;
 import com.echo.fastdbproj.util.JsonProvider;
+import com.echo.fastdbproj.util.UnitedLog;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Component;
@@ -32,7 +33,7 @@ public class MainServiceImpl implements MainService {
         var mapper = new HashMap<>(driverPlaceMap);
         busyDriverIds.forEach(mapper::remove);
         var str = json.toJson(mapper);
-        System.out.println("str: \n" + str);
+        UnitedLog.print("str: \n" + str);
         return str;
     }
 
@@ -41,7 +42,7 @@ public class MainServiceImpl implements MainService {
         var mapper = new HashMap<>(customerPlaceMap);
         busyCustomerIds.forEach(mapper::remove);
         var str = json.toJson(mapper);
-        System.out.println("str: \n" + str);
+        UnitedLog.print("str: \n" + str);
         return str;
     }
 
@@ -66,7 +67,7 @@ public class MainServiceImpl implements MainService {
                  (utils.calcDistance(driverPlaceMap.get(b).get(0), driverPlaceMap.get(b).get(1), lng, lat)))
         );
 
-        driverIds.forEach((e) -> System.out.print(e + "\t"));
+        //        driverIds.forEach((e) -> System.out.print(e + "\t"));
         return driverIds;
     }
 

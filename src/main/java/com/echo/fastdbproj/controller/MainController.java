@@ -37,7 +37,6 @@ public class MainController {
     DriverService driverService;
     CustomerService customerService;
 
-    AtomicBoolean isNewTravelHandled = new AtomicBoolean(false);
     Map<String, AtomicBoolean> handledMap = new HashMap<>(); // map preBillId 2 isCaught
     Executor exe;
 
@@ -143,6 +142,34 @@ public class MainController {
     @RequestMapping("getFreeDriverPlaces")
     public String getFreeDriverPlaces() {
         return this.mainService.getFreeDriverPlaces();
+    }
+
+    @RequestMapping("caught")
+    public String together(String customerId){
+        try {
+            handler.send2customer(customerId, "{ \"CAUGHT\": true }");
+        } catch (IOException e) {
+            exe.execute(() -> {
+                throw new RuntimeException(e);
+            });
+            return "failed";
+        }
+        return "success";
+    }
+
+
+    @RequestMapping("rideEnd")
+    public String rideEnd(String driverId, String customerId) {
+        try {
+            handler.send2customer(customerId, "{ \"CAUGHT\": false, \"FINISHED\": true }");
+            mainService.unBind(driverId, customerId);
+        } catch (IOException e) {
+            exe.execute(() -> {
+                throw new RuntimeException(e);
+            });
+            return "failed";
+        }
+        return "success";
     }
 
     @RequestMapping("getFreeCustomerPlaces")

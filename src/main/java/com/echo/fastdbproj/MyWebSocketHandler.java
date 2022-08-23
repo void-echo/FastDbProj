@@ -23,7 +23,6 @@ import java.util.concurrent.Executor;
 @Component
 public class MyWebSocketHandler implements WebSocketHandler {
     MainService mainService;
-
     ConcurrentHashMap<String, WebSocketSession> id2session;
     ConcurrentHashMap<String, String> sessionId2Id;
     CopyOnWriteArraySet<String> sessionIds;
@@ -107,7 +106,11 @@ public class MyWebSocketHandler implements WebSocketHandler {
                 var driverId = sessionId2Id.get(sessionId);
                 mainService.dualUpdate(driverId, lngLat[0], lngLat[1]);
                 var customerId = mainService.getDualCustomerIdOfWorkingDriver(driverId);
-                id2session.get(customerId).sendMessage(new TextMessage("{ \"lng\": " + lngLat[0] + ", \"lat\": " + lngLat[1] + " }"));
+                if (customerId != null) {
+                    id2session.get(customerId).sendMessage(new TextMessage("{ \"lng\": " + lngLat[0] + ", \"lat\": " + lngLat[1] + " }"));
+                } else {
+                    UnitedLog.print("司机目前没有接到乘客, 不进行坐标转发. ");
+                }
             }
         } else UnitedLog.err("Parsing ERR: Payload: " + msg + " is not a String.");
     }

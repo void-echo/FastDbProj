@@ -77,32 +77,21 @@ public class UnitedLog {
     public static final String CYAN_BACKGROUND_BRIGHT = "\033[0;106m";  // CYAN
     public static final String WHITE_BACKGROUND_BRIGHT = "\033[0;107m";   // WHITE
 
-    static SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SSS");
-
     public static void main(String[] args) {
-        print("123123");
-        err("123123");
-        print("123123");
-        err("123123");
-        print("123123");
-        err("123123");
-        print("123123");
-        err("123123");
-        print("123123");
-        err("123123");
-        print("123123");
-        err("123123");
-        print("123123");
-        err("123123");
-        print("123123");
-        err("123123");
+
     }
 
     public static void print(String info) {
-        System.out.println(GREEN_BOLD_BRIGHT + "[INFO] " + RESET + LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss.SSS")) + " \n" + info);
+        System.out.println(GREEN_BOLD_BRIGHT + "[INFO] "
+                + RESET
+                + LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss.SSS"))
+                + " \n" + info);
     }
 
     public static void err(String err) {
-        System.out.println(RED_BOLD_BRIGHT + "[ERR ] " + RESET + LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss.SSS")) + " \n" + err);
+        System.out.println(RED_BOLD_BRIGHT + "[ERR ] "
+                + RESET
+                + LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss.SSS"))
+                + " \n" + err);
     }
 }
