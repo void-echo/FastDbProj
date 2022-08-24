@@ -1,7 +1,10 @@
 package com.echo.fastdbproj.entity;
 
-import java.util.Date;
+import com.echo.fastdbproj.util.UnitedLog;
+
+import java.io.Serial;
 import java.io.Serializable;
+import java.util.Set;
 
 /**
  * (Bill)实体类
@@ -10,11 +13,14 @@ import java.io.Serializable;
  * @since 2022-08-24 15:54:16
  */
 public class Bill implements Serializable {
+    @Serial
     private static final long serialVersionUID = -16195025527705346L;
+    public static final Set<String> POSSIBLE_STATUSES = Set.of(
+            "HANGING", "WAITING", "GOING", "NOT_PAID", "NOT_SCORED", "FINISHED", "ON_DISPUTE", "ARCHIVED"
+    );
 
     private String id;
-
-    private Date time;
+    private java.sql.Timestamp time;
 
     private String money;
 
@@ -28,6 +34,25 @@ public class Bill implements Serializable {
 
     private String duration;
 
+    private String fromPlace;
+
+    private String toPlace;
+
+    public String getFromPlace() {
+        return fromPlace;
+    }
+
+    public void setFromPlace(String fromPlace) {
+        this.fromPlace = fromPlace;
+    }
+
+    public String getToPlace() {
+        return toPlace;
+    }
+
+    public void setToPlace(String toPlace) {
+        this.toPlace = toPlace;
+    }
 
     public String getId() {
         return id;
@@ -37,11 +62,11 @@ public class Bill implements Serializable {
         this.id = id;
     }
 
-    public Date getTime() {
+    public java.sql.Timestamp getTime() {
         return time;
     }
 
-    public void setTime(Date time) {
+    public void setTime(java.sql.Timestamp time) {
         this.time = time;
     }
 
@@ -82,6 +107,9 @@ public class Bill implements Serializable {
     }
 
     public void setStatus(String status) {
+        if (!POSSIBLE_STATUSES.contains(status)) {
+            UnitedLog.print("Bill::Status should be in { " + POSSIBLE_STATUSES + " }, \nGot " + status);
+        }
         this.status = status;
     }
 

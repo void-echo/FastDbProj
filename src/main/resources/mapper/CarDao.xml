@@ -79,7 +79,7 @@
         insert into car(id, start_using_time, band, max_speed, car_type)
         values
         <foreach collection="entities" item="entity" separator=",">
-            (#{id}, #{entity.startUsingTime}, #{entity.band}, #{entity.maxSpeed}, #{entity.carType})
+            (#{entity.id}, #{entity.startUsingTime}, #{entity.band}, #{entity.maxSpeed}, #{entity.carType})
         </foreach>
     </insert>
 
@@ -87,7 +87,7 @@
         insert into car(id, start_using_time, band, max_speed, car_type)
         values
         <foreach collection="entities" item="entity" separator=",">
-            (#{id}, #{entity.startUsingTime}, #{entity.band}, #{entity.maxSpeed}, #{entity.carType})
+            (#{entity.id}, #{entity.startUsingTime}, #{entity.band}, #{entity.maxSpeed}, #{entity.carType})
         </foreach>
         on duplicate key update
         start_using_time = values(start_using_time),

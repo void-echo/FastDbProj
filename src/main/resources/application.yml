@@ -19,3 +19,7 @@ mybatis:
 #        map-underscore-to-camel-case: true
 server:
   port: 17747
+
+  spring:
+    mvc:
+      date-format: yyyy-MM-dd

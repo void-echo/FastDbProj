@@ -1,8 +1,10 @@
 package com.echo.fastdbproj.controller;
 
 import com.echo.fastdbproj.MyWebSocketHandler;
+import com.echo.fastdbproj.entity.Bill;
 import com.echo.fastdbproj.entity.Customer;
 import com.echo.fastdbproj.entity.Driver;
+import com.echo.fastdbproj.service.BillService;
 import com.echo.fastdbproj.service.CustomerService;
 import com.echo.fastdbproj.service.DriverService;
 import com.echo.fastdbproj.service.MainService;
@@ -14,11 +16,15 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.io.IOException;
+import java.sql.Timestamp;
+import java.time.Instant;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
+import java.time.temporal.TemporalAmount;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.concurrent.Executor;
 import java.util.concurrent.atomic.AtomicBoolean;
 
@@ -37,7 +43,10 @@ public class MainController {
     DriverService driverService;
     CustomerService customerService;
 
-    Map<String, AtomicBoolean> handledMap = new HashMap<>(); // map preBillId 2 isCaught
+    BillService billService;
+    Map<String, AtomicBoolean> handledMap = new HashMap<>(); // map preBillId to isCaught
+
+    Map<String, Bill> billMap = new HashMap<>();
     Executor exe;
 
     @Autowired
@@ -77,11 +86,24 @@ public class MainController {
         return customer;
     }
 
+    public String lngLat2String(double lng, double lat) {
+        return "[%f, %f]".formatted(lng, lat);
+    }
+
     @RequestMapping("query4new-travel")
     public void newTravel(String customerId, double lng, double lat, double lng2, double lat2) {
         var preBillId = LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss.SSS")) + customerId;
+        Bill b_ = new Bill();
         var flag = new AtomicBoolean(false);
         handledMap.put(preBillId, flag);
+        b_.setId(preBillId);
+        b_.setStatus("HANGING");
+        b_.setFromPlace(lngLat2String(lng, lat));
+        b_.setCustomerId(customerId);
+        b_.setToPlace(lngLat2String(lng2, lat2));
+        b_.setTime(Timestamp.from(Instant.now()));
+        billMap.put(preBillId, b_);
+        exe.execute(() -> billService.insert(b_));
         var availableDrivers = this.mainService.getChiKaiKuRuMasOfKyaKu(customerId, lng, lat);
         exe.execute(() -> {
             try {
@@ -109,7 +131,11 @@ public class MainController {
         }
         flag.set(true);
         this.mainService.bind(driverId, customerId);
+        var bill = billMap.get(preBillId);
+        bill.setStatus("GOING");
+        bill.setDriverId(driverId);
         exe.execute(() -> {
+            billService.update(bill);
             var driverPlace = mainService.getWorkingDriverPlaceOf(driverId).split(",");
             for (var s : driverPlace) {
                 s = s.trim();
@@ -132,6 +158,41 @@ public class MainController {
             }
         });
         return "success";
+    }
+
+
+    // 车主
+    @RequestMapping("store1bill")
+    public void storeBillByCustomer(String billId, String customerId, String money) {
+        Bill bill = billMap.get(billId);
+        Timestamp startTime = bill.getTime();
+        bill.setDuration(String.valueOf(Instant.now().minus((TemporalAmount) startTime)));
+        bill.setMoney(money);
+        bill.setStatus("NOT_PAID");
+        exe.execute(() -> billService.update(bill));
+        exe.execute(() -> {
+            try {
+                handler.send2customer(customerId, "{ \"billId\": \"%s\", \"money\": \"%s\" }".formatted(billId, money));
+            } catch (IOException e) {
+                throw new RuntimeException(e);
+            }
+        });
+    }
+
+
+    // 顾客
+    @RequestMapping("PayAndGiveScore")
+    public void giveScore(String billId, Optional<Integer> score_) {
+        var bill = billMap.get(billId);
+        Integer score;
+        if (score_.isPresent()) {
+            score = score_.get();
+            bill.setScore(score);
+            bill.setStatus("FINISHED");
+        } else {
+            bill.setStatus("NOT_SCORED");
+        }
+        exe.execute(() -> billService.update(bill));
     }
 
     @Autowired
@@ -246,5 +307,10 @@ public class MainController {
     @Autowired
     public void setCustomerService(CustomerService customerService) {
         this.customerService = customerService;
+    }
+
+    @Autowired
+    public void setBillService(BillService billService) {
+        this.billService = billService;
     }
 }

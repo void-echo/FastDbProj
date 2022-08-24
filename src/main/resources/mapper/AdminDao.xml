@@ -79,7 +79,7 @@
         insert into admin(id, name, tel, mail, password_sha256)
         values
         <foreach collection="entities" item="entity" separator=",">
-            (#{id}, #{entity.name}, #{entity.tel}, #{entity.mail}, #{entity.passwordSha256})
+            (#{entity.id}, #{entity.name}, #{entity.tel}, #{entity.mail}, #{entity.passwordSha256})
         </foreach>
     </insert>
 
@@ -87,7 +87,7 @@
         insert into admin(id, name, tel, mail, password_sha256)
         values
         <foreach collection="entities" item="entity" separator=",">
-            (#{id}, #{entity.name}, #{entity.tel}, #{entity.mail}, #{entity.passwordSha256})
+            (#{entity.id}, #{entity.name}, #{entity.tel}, #{entity.mail}, #{entity.passwordSha256})
         </foreach>
         on duplicate key update
         name = values(name),

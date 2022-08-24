@@ -1,0 +1,115 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.echo.fastdbproj.dao.CreditCardDao">
+
+    <resultMap type="com.echo.fastdbproj.entity.CreditCard" id="CreditCardMap">
+        <result property="id" column="id" jdbcType="VARCHAR"/>
+        <result property="cardType" column="card_type" jdbcType="VARCHAR"/>
+        <result property="organization" column="organization" jdbcType="VARCHAR"/>
+        <result property="balance" column="balance" jdbcType="NUMERIC"/>
+    </resultMap>
+
+    <!--查询单个-->
+    <select id="queryById" resultMap="CreditCardMap">
+        select id,
+               card_type,
+               organization,
+               balance
+        from credit_card
+        where id = #{id}
+    </select>
+
+    <!--查询指定行数据-->
+    <select id="queryAllByLimit" resultMap="CreditCardMap">
+        select
+        id, card_type, organization, balance
+        from credit_card
+        <where>
+            <if test="id != null and id != ''">
+                and id = #{id}
+            </if>
+            <if test="cardType != null and cardType != ''">
+                and card_type = #{cardType}
+            </if>
+            <if test="organization != null and organization != ''">
+                and organization = #{organization}
+            </if>
+            <if test="balance != null">
+                and balance = #{balance}
+            </if>
+        </where>
+        limit #{pageable.offset}, #{pageable.pageSize}
+    </select>
+
+    <!--统计总行数-->
+    <select id="count" resultType="java.lang.Long">
+        select count(1)
+        from credit_card
+        <where>
+            <if test="id != null and id != ''">
+                and id = #{id}
+            </if>
+            <if test="cardType != null and cardType != ''">
+                and card_type = #{cardType}
+            </if>
+            <if test="organization != null and organization != ''">
+                and organization = #{organization}
+            </if>
+            <if test="balance != null">
+                and balance = #{balance}
+            </if>
+        </where>
+    </select>
+
+    <!--新增所有列-->
+    <insert id="insert" keyProperty="id" useGeneratedKeys="false">
+        insert into credit_card(id, card_type, organization, balance)
+        values (#{id}, #{cardType}, #{organization}, #{balance})
+    </insert>
+
+    <insert id="insertBatch" keyProperty="id" useGeneratedKeys="false">
+        insert into credit_card(id, card_type, organization, balance)
+        values
+        <foreach collection="entities" item="entity" separator=",">
+            (#{entity.id}, #{entity.cardType}, #{entity.organization}, #{entity.balance})
+        </foreach>
+    </insert>
+
+    <insert id="insertOrUpdateBatch" keyProperty="id" useGeneratedKeys="false">
+        insert into credit_card(id, card_type, organization, balance)
+        values
+        <foreach collection="entities" item="entity" separator=",">
+            (#{entity.id}, #{entity.cardType}, #{entity.organization}, #{entity.balance})
+        </foreach>
+        on duplicate key update
+        card_type = values(card_type),
+        organization = values(organization),
+        balance = values(balance)
+    </insert>
+
+    <!--通过主键修改数据-->
+    <update id="update">
+        update credit_card
+        <set>
+            <if test="cardType != null and cardType != ''">
+                card_type = #{cardType},
+            </if>
+            <if test="organization != null and organization != ''">
+                organization = #{organization},
+            </if>
+            <if test="balance != null">
+                balance = #{balance},
+            </if>
+        </set>
+        where id = #{id}
+    </update>
+
+    <!--通过主键删除-->
+    <delete id="deleteById">
+        delete
+        from credit_card
+        where id = #{id}
+    </delete>
+
+</mapper>
+

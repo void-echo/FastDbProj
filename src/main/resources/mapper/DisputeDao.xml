@@ -103,7 +103,7 @@
         insert into dispute(id, time, driver_id, customer_id, bill_id, type, status, contents)
         values
         <foreach collection="entities" item="entity" separator=",">
-            (#{id}, #{entity.time}, #{entity.driverId}, #{entity.customerId}, #{entity.billId}, #{entity.type},
+            (#{entity.id}, #{entity.time}, #{entity.driverId}, #{entity.customerId}, #{entity.billId}, #{entity.type},
             #{entity.status}, #{entity.contents})
         </foreach>
     </insert>
@@ -112,7 +112,7 @@
         insert into dispute(id, time, driver_id, customer_id, bill_id, type, status, contents)
         values
         <foreach collection="entities" item="entity" separator=",">
-            (#{id}, #{entity.time}, #{entity.driverId}, #{entity.customerId}, #{entity.billId}, #{entity.type},
+            (#{entity.id}, #{entity.time}, #{entity.driverId}, #{entity.customerId}, #{entity.billId}, #{entity.type},
             #{entity.status}, #{entity.contents})
         </foreach>
         on duplicate key update

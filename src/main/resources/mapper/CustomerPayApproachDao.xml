@@ -1,0 +1,103 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.echo.fastdbproj.dao.CustomerPayApproachDao">
+
+    <resultMap type="com.echo.fastdbproj.entity.CustomerPayApproach" id="CustomerPayApproachMap">
+        <result property="customerId" column="customer_id" jdbcType="VARCHAR"/>
+        <result property="cardId" column="card_id" jdbcType="VARCHAR"/>
+        <result property="payApproachId" column="pay_approach_id" jdbcType="VARCHAR"/>
+    </resultMap>
+
+    <!--查询单个-->
+    <select id="queryById" resultMap="CustomerPayApproachMap">
+        select customer_id,
+               card_id,
+               pay_approach_id
+        from customer_pay_approach
+        where pay_approach_id = #{payApproachId}
+    </select>
+
+    <!--查询指定行数据-->
+    <select id="queryAllByLimit" resultMap="CustomerPayApproachMap">
+        select
+        customer_id, card_id, pay_approach_id
+        from customer_pay_approach
+        <where>
+            <if test="customerId != null and customerId != ''">
+                and customer_id = #{customerId}
+            </if>
+            <if test="cardId != null and cardId != ''">
+                and card_id = #{cardId}
+            </if>
+            <if test="payApproachId != null and payApproachId != ''">
+                and pay_approach_id = #{payApproachId}
+            </if>
+        </where>
+        limit #{pageable.offset}, #{pageable.pageSize}
+    </select>
+
+    <!--统计总行数-->
+    <select id="count" resultType="java.lang.Long">
+        select count(1)
+        from customer_pay_approach
+        <where>
+            <if test="customerId != null and customerId != ''">
+                and customer_id = #{customerId}
+            </if>
+            <if test="cardId != null and cardId != ''">
+                and card_id = #{cardId}
+            </if>
+            <if test="payApproachId != null and payApproachId != ''">
+                and pay_approach_id = #{payApproachId}
+            </if>
+        </where>
+    </select>
+
+    <!--新增所有列-->
+    <insert id="insert" keyProperty="payApproachId" useGeneratedKeys="false">
+        insert into customer_pay_approach(pay_approach_id, customer_id, card_id)
+        values (#{payApproachId}, #{customerId}, #{cardId})
+    </insert>
+
+    <insert id="insertBatch" keyProperty="payApproachId" useGeneratedKeys="false">
+        insert into customer_pay_approach(pay_approach_id, customer_id, card_id)
+        values
+        <foreach collection="entities" item="entity" separator=",">
+            (#{entity.payApproachId}, #{entity.customerId}, #{entity.cardId})
+        </foreach>
+    </insert>
+
+    <insert id="insertOrUpdateBatch" keyProperty="payApproachId" useGeneratedKeys="false">
+        insert into customer_pay_approach(pay_approach_id, customer_id, card_id)
+        values
+        <foreach collection="entities" item="entity" separator=",">
+            (#{entity.payApproachId}, #{entity.customerId}, #{entity.cardId})
+        </foreach>
+        on duplicate key update
+        customer_id = values(customer_id),
+        card_id = values(card_id)
+    </insert>
+
+    <!--通过主键修改数据-->
+    <update id="update">
+        update customer_pay_approach
+        <set>
+            <if test="customerId != null and customerId != ''">
+                customer_id = #{customerId},
+            </if>
+            <if test="cardId != null and cardId != ''">
+                card_id = #{cardId},
+            </if>
+        </set>
+        where pay_approach_id = #{payApproachId}
+    </update>
+
+    <!--通过主键删除-->
+    <delete id="deleteById">
+        delete
+        from customer_pay_approach
+        where pay_approach_id = #{payApproachId}
+    </delete>
+
+</mapper>
+

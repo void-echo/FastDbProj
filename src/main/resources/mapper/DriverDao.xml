@@ -111,7 +111,7 @@
         insert into driver(id, name, tel, mail, run_times, password_sha256, prefer_place, score, car_id)
         values
         <foreach collection="entities" item="entity" separator=",">
-            (#{id}, #{entity.name}, #{entity.tel}, #{entity.mail}, #{entity.runTimes}, #{entity.passwordSha256},
+            (#{entity.id}, #{entity.name}, #{entity.tel}, #{entity.mail}, #{entity.runTimes}, #{entity.passwordSha256},
             #{entity.preferPlace}, #{entity.score}, #{entity.carId})
         </foreach>
     </insert>
@@ -120,7 +120,7 @@
         insert into driver(id, name, tel, mail, run_times, password_sha256, prefer_place, score, car_id)
         values
         <foreach collection="entities" item="entity" separator=",">
-            (#{id}, #{entity.name}, #{entity.tel}, #{entity.mail}, #{entity.runTimes}, #{entity.passwordSha256},
+            (#{entity.id}, #{entity.name}, #{entity.tel}, #{entity.mail}, #{entity.runTimes}, #{entity.passwordSha256},
             #{entity.preferPlace}, #{entity.score}, #{entity.carId})
         </foreach>
         on duplicate key update
