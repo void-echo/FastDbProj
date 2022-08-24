@@ -10,7 +10,7 @@ import java.util.List;
  * (Bill)表数据库访问层
  *
  * @author makejava
- * @since 2022-08-11 14:08:09
+ * @since 2022-08-24 15:54:15
  */
 public interface BillDao {
 

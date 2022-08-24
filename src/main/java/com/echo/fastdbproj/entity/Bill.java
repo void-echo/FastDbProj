@@ -7,10 +7,10 @@ import java.io.Serializable;
  * (Bill)实体类
  *
  * @author makejava
- * @since 2022-08-11 14:08:09
+ * @since 2022-08-24 15:54:16
  */
 public class Bill implements Serializable {
-    private static final long serialVersionUID = 654896225109029445L;
+    private static final long serialVersionUID = -16195025527705346L;
 
     private String id;
 
@@ -25,6 +25,8 @@ public class Bill implements Serializable {
     private String customerId;
 
     private String status;
+
+    private String duration;
 
 
     public String getId() {
@@ -81,6 +83,14 @@ public class Bill implements Serializable {
 
     public void setStatus(String status) {
         this.status = status;
+    }
+
+    public String getDuration() {
+        return duration;
+    }
+
+    public void setDuration(String duration) {
+        this.duration = duration;
     }
 
 }

@@ -13,10 +13,9 @@ import javax.annotation.Resource;
  * (Bill)表控制层
  *
  * @author makejava
- * @since 2022-08-11 14:08:09
+ * @since 2022-08-24 15:54:15
  */
 @RestController
-@CrossOrigin
 @RequestMapping("bill")
 public class BillController {
     /**

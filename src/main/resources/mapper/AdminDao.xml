@@ -70,24 +70,24 @@
     </select>
 
     <!--新增所有列-->
-    <insert id="insert" keyProperty="id" useGeneratedKeys="true">
-        insert into admin(name, tel, mail, password_sha256)
-        values (#{name}, #{tel}, #{mail}, #{passwordSha256})
+    <insert id="insert" keyProperty="id" useGeneratedKeys="false">
+        insert into admin(id, name, tel, mail, password_sha256)
+        values (#{id}, #{name}, #{tel}, #{mail}, #{passwordSha256})
     </insert>
 
-    <insert id="insertBatch" keyProperty="id" useGeneratedKeys="true">
-        insert into admin(name, tel, mail, password_sha256)
+    <insert id="insertBatch" keyProperty="id" useGeneratedKeys="false">
+        insert into admin(id, name, tel, mail, password_sha256)
         values
         <foreach collection="entities" item="entity" separator=",">
-            (#{entity.name}, #{entity.tel}, #{entity.mail}, #{entity.passwordSha256})
+            (#{id}, #{entity.name}, #{entity.tel}, #{entity.mail}, #{entity.passwordSha256})
         </foreach>
     </insert>
 
-    <insert id="insertOrUpdateBatch" keyProperty="id" useGeneratedKeys="true">
-        insert into admin(name, tel, mail, password_sha256)
+    <insert id="insertOrUpdateBatch" keyProperty="id" useGeneratedKeys="false">
+        insert into admin(id, name, tel, mail, password_sha256)
         values
         <foreach collection="entities" item="entity" separator=",">
-            (#{entity.name}, #{entity.tel}, #{entity.mail}, #{entity.passwordSha256})
+            (#{id}, #{entity.name}, #{entity.tel}, #{entity.mail}, #{entity.passwordSha256})
         </foreach>
         on duplicate key update
         name = values(name),
