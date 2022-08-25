@@ -8,6 +8,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import javax.annotation.Resource;
+import java.util.List;
 
 /**
  * (Bill)表控制层
@@ -80,5 +81,22 @@ public class BillController {
         return ResponseEntity.ok(this.billService.deleteById(id));
     }
 
+
+    @GetMapping("avg-score")
+    public ResponseEntity<Double> driverAvgScore(String driverId) {
+        return ResponseEntity.ok(billService.getAverScoreOfDriver(driverId));
+    }
+
+
+    @GetMapping("get-all-by-customer")
+    public ResponseEntity<List<Bill>> getAllByCustomer(String customerId) {
+        return ResponseEntity.ok(billService.selectAllByCustomerId(customerId));
+    }
+
+
+    @GetMapping("get-all-by-driver")
+    public ResponseEntity<List<Bill>> getAllByDriver(String driverId) {
+        return ResponseEntity.ok(billService.selectAllByDriverId(driverId));
+    }
 }
 

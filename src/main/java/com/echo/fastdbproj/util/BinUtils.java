@@ -3,6 +3,8 @@ package com.echo.fastdbproj.util;
 
 import org.springframework.stereotype.Component;
 
+import java.time.Duration;
+import java.time.Instant;
 import java.util.Arrays;
 
 @Component
@@ -48,5 +50,10 @@ public class BinUtils {
     public String parseId(String msg) {
         checkStartWith(msg, "ID: ");
         return msg.replaceFirst("ID: ", "").trim();
+    }
+
+    public String calcTimeDuration(Instant start, Instant end) {
+        Duration duration = Duration.between(start, end);
+        return duration.toString();
     }
 }

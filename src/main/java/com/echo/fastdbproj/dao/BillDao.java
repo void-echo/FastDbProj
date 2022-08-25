@@ -2,8 +2,12 @@ package com.echo.fastdbproj.dao;
 
 import com.echo.fastdbproj.entity.Bill;
 import org.apache.ibatis.annotations.Param;
+import org.apache.ibatis.annotations.Result;
+import org.apache.ibatis.annotations.Results;
+import org.apache.ibatis.annotations.Select;
 import org.springframework.data.domain.Pageable;
 
+import java.sql.Timestamp;
 import java.util.List;
 
 /**
@@ -79,6 +83,60 @@ public interface BillDao {
      * @return 影响行数
      */
     int deleteById(String id);
+
+
+    @Select("select avg(score) from bill where driver_id = #{driverId}")
+    double getAverageScoreOfDriver(String driverId);
+
+    /*
+    * @Select("SELECT * FROM users WHERE id = #{id}")
+	@Results({
+		@Result(property = "userSex",  column = "user_sex", javaType = UserSexEnum.class),
+		@Result(property = "nickName", column = "nick_name")
+	})
+	*
+	*
+	* id;
+        l.Timestamp ti
+        money;
+         score;
+        driverId;
+        customerId;
+        status;
+        duration;
+        fromPlace;
+        toPlace;
+    * */
+    @Select("select * from bill where customer_id = #{customerId}")
+    @Results({
+            @Result(property = "id", column = "id", javaType = String.class),
+            @Result(property = "time", column = "time", javaType = Timestamp.class),
+            @Result(property = "money", column = "money", javaType = String.class),
+            @Result(property = "score", column = "score", javaType = Integer.class),
+            @Result(property = "driverId", column = "driver_id", javaType = String.class),
+            @Result(property = "status", column = "status", javaType = String.class),
+            @Result(property = "duration", column = "duration", javaType = String.class),
+            @Result(property = "fromPlace", column = "from_place", javaType = String.class),
+            @Result(property = "customerId", column = "customer_id", javaType = String.class),
+            @Result(property = "toPlace", column = "to_place", javaType = String.class),
+    })
+    List<Bill> selectAllByCustomerIdList(String customerId);
+
+
+    @Select("select * from bill where driver_id = #{driverId}")
+    @Results({
+            @Result(property = "id", column = "id", javaType = String.class),
+            @Result(property = "time", column = "time", javaType = Timestamp.class),
+            @Result(property = "money", column = "money", javaType = String.class),
+            @Result(property = "score", column = "score", javaType = Integer.class),
+            @Result(property = "driverId", column = "driver_id", javaType = String.class),
+            @Result(property = "status", column = "status", javaType = String.class),
+            @Result(property = "duration", column = "duration", javaType = String.class),
+            @Result(property = "fromPlace", column = "from_place", javaType = String.class),
+            @Result(property = "toPlace", column = "to_place", javaType = String.class),
+            @Result(property = "customerId", column = "customer_id", javaType = String.class),
+    })
+    List<Bill> selectAllByDriverIdList(String driverId);
 
 }
 

@@ -29,6 +29,14 @@ public class Driver implements Serializable {
 
     private String carId;
 
+    public Driver() {
+        super();
+        this.runTimes = 0;
+        this.preferPlace = "";
+        this.carId = null;
+        this.score = 5.0;
+    }
+
 
     public String getId() {
         return id;

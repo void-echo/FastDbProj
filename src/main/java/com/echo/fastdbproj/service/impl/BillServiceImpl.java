@@ -9,6 +9,7 @@ import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
 
 import javax.annotation.Resource;
+import java.util.List;
 
 /**
  * (Bill)表服务实现类
@@ -78,5 +79,21 @@ public class BillServiceImpl implements BillService {
     @Override
     public boolean deleteById(String id) {
         return this.billDao.deleteById(id) > 0;
+    }
+
+
+    @Override
+    public double getAverScoreOfDriver(String driverId) {
+        return billDao.getAverageScoreOfDriver(driverId);
+    }
+
+    @Override
+    public List<Bill> selectAllByCustomerId(String customerId) {
+        return billDao.selectAllByCustomerIdList(customerId);
+    }
+
+    @Override
+    public List<Bill> selectAllByDriverId(String driverId) {
+        return billDao.selectAllByDriverIdList(driverId);
     }
 }

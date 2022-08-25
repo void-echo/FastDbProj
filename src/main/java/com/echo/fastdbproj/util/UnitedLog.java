@@ -94,4 +94,11 @@ public class UnitedLog {
                 + LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss.SSS"))
                 + " \n" + err);
     }
+
+    public static void warn(String warn) {
+        System.out.println(YELLOW_BOLD_BRIGHT + "[WARN] "
+                + RESET
+                + LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss.SSS"))
+                + " \n" + warn);
+    }
 }

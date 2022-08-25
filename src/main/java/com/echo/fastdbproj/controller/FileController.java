@@ -13,6 +13,7 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.nio.file.Files;
+import java.nio.file.NoSuchFileException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.Base64;
@@ -45,11 +46,16 @@ public class FileController {
         if (!typeSet.contains(type)) {
             UnitedLog.err("Cannot find pic file of " + type + " , " + id);
         }
-        List<File> filesInFolder = Files.walk(Paths.get(UPLOADED_FOLDER +  type + "\\" + id))
-                .filter(Files::isRegularFile)
-                .map(Path::toFile).toList();
-        byte[] fileContents = FileUtils.readFileToByteArray(filesInFolder.get(0));
-        return Base64.getEncoder().encodeToString(fileContents);
+        try {
+            List<File> filesInFolder = Files.walk(Paths.get(UPLOADED_FOLDER + type + "\\" + id))
+                    .filter(Files::isRegularFile)
+                    .map(Path::toFile).toList();
+            byte[] fileContents = FileUtils.readFileToByteArray(filesInFolder.get(0));
+            return Base64.getEncoder().encodeToString(fileContents);
+        } catch (NoSuchFileException e) {
+            UnitedLog.warn(type + ": " + id + " Have no Avatar.");
+        }
+        return "";
     }
 
 

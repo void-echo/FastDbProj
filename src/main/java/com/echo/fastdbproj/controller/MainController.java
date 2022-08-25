@@ -8,6 +8,7 @@ import com.echo.fastdbproj.service.BillService;
 import com.echo.fastdbproj.service.CustomerService;
 import com.echo.fastdbproj.service.DriverService;
 import com.echo.fastdbproj.service.MainService;
+import com.echo.fastdbproj.util.BinUtils;
 import com.echo.fastdbproj.util.UnitedLog;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
@@ -20,7 +21,6 @@ import java.sql.Timestamp;
 import java.time.Instant;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
-import java.time.temporal.TemporalAmount;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -48,6 +48,8 @@ public class MainController {
 
     Map<String, Bill> billMap = new HashMap<>();
     Executor exe;
+
+    BinUtils binUtils;
 
     @Autowired
     public void setHandler(MyWebSocketHandler handler) {
@@ -142,8 +144,7 @@ public class MainController {
             }
             var lng = Double.parseDouble(driverPlace[0]);
             var lat = Double.parseDouble(driverPlace[1]);
-            var msg =
-                    """
+            var msg = """
                     {
                          "ID": "%s",
                          "lng": %f,
@@ -161,12 +162,13 @@ public class MainController {
     }
 
 
+
     // 车主
     @RequestMapping("store1bill")
     public void storeBillByCustomer(String billId, String customerId, String money) {
         Bill bill = billMap.get(billId);
         Timestamp startTime = bill.getTime();
-        bill.setDuration(String.valueOf(Instant.now().minus((TemporalAmount) startTime)));
+        bill.setDuration(binUtils.calcTimeDuration(startTime.toInstant(), Instant.now()));
         bill.setMoney(money);
         bill.setStatus("NOT_PAID");
         exe.execute(() -> billService.update(bill));
@@ -185,6 +187,8 @@ public class MainController {
     public void giveScore(String billId, Optional<Integer> score_) {
         var bill = billMap.get(billId);
         Integer score;
+        UnitedLog.print("是否打了分：" + score_.isPresent());
+        score_.ifPresent(integer -> UnitedLog.print("分数：" + integer));
         if (score_.isPresent()) {
             score = score_.get();
             bill.setScore(score);
@@ -192,7 +196,14 @@ public class MainController {
         } else {
             bill.setStatus("NOT_SCORED");
         }
-        exe.execute(() -> billService.update(bill));
+        exe.execute(() -> {
+            billService.update(bill);
+            var driverId = bill.getDriverId();
+            if (score_.isPresent()) {
+
+            }
+
+        });
     }
 
     @Autowired
@@ -206,7 +217,7 @@ public class MainController {
     }
 
     @RequestMapping("caught")
-    public String together(String customerId){
+    public String together(String customerId) {
         try {
             handler.send2customer(customerId, "{ \"CAUGHT\": true }");
         } catch (IOException e) {
@@ -221,6 +232,11 @@ public class MainController {
 
     @RequestMapping("rideEnd")
     public String rideEnd(String driverId, String customerId) {
+        exe.execute(() -> {
+            Driver driver = driverService.queryById(driverId);
+            driver.setRunTimes(driver.getRunTimes() + 1);
+            driverService.update(driver);
+        });
         try {
             handler.send2customer(customerId, "{ \"CAUGHT\": false, \"FINISHED\": true }");
             mainService.unBind(driverId, customerId);
@@ -312,5 +328,10 @@ public class MainController {
     @Autowired
     public void setBillService(BillService billService) {
         this.billService = billService;
+    }
+
+    @Autowired
+    public void setBinUtils(BinUtils binUtils) {
+        this.binUtils = binUtils;
     }
 }

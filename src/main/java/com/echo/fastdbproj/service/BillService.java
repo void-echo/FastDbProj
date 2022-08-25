@@ -4,6 +4,8 @@ import com.echo.fastdbproj.entity.Bill;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 
+import java.util.List;
+
 /**
  * (Bill)表服务接口
  *
@@ -52,5 +54,10 @@ public interface BillService {
      * @return 是否成功
      */
     boolean deleteById(String id);
+
+    double getAverScoreOfDriver(String driverId);
+
+    List<Bill> selectAllByCustomerId(String customerId);
+    List<Bill> selectAllByDriverId(String driverId);
 
 }
