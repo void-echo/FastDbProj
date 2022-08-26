@@ -68,13 +68,15 @@ public class FileController {
                              Optional<String> type) {
         String _type = type.orElse("customer");
         //        var loggedIn = StpUtil.isLogin();
+        UnitedLog.warn("文件上传的 ID: " + userId);
+        UnitedLog.warn("文件上传的 TYPE: " + _type);
         if ( !typeSet.contains(_type)) {
             UnitedLog.err("User ID:" + userId +" Not log in");
             return "Not available. Access denied";
         }
         if (file.isEmpty()) {
             redirectAttributes.addFlashAttribute("message", "Please select a file to upload");
-            return "redirect:uploadStatus";
+            return "文件是空的";
         }
 
         try {

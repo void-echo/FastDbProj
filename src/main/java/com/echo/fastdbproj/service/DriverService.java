@@ -4,6 +4,8 @@ import com.echo.fastdbproj.entity.Driver;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 
+import java.util.List;
+
 /**
  * (Driver)表服务接口
  *
@@ -52,5 +54,7 @@ public interface DriverService {
      * @return 是否成功
      */
     boolean deleteById(String id);
+
+    List<Driver> getAll();
 
 }

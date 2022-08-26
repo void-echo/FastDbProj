@@ -17,6 +17,7 @@ import javax.annotation.Resource;
  */
 @RestController
 @RequestMapping("customerPayApproach")
+@CrossOrigin
 public class CustomerPayApproachController {
     /**
      * 服务对象

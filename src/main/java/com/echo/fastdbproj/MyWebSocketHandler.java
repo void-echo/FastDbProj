@@ -63,6 +63,10 @@ public class MyWebSocketHandler implements WebSocketHandler {
         ));
     }
 
+    public void send2driver(String driverId, String msg)  throws IOException {
+        id2session.get(driverId).sendMessage(new TextMessage(msg));
+    }
+
     public void send2customer(String customerId, String msg) throws IOException {
         id2session.get(customerId).sendMessage(new TextMessage(msg));
     }

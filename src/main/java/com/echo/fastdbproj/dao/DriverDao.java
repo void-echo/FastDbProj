@@ -2,6 +2,9 @@ package com.echo.fastdbproj.dao;
 
 import com.echo.fastdbproj.entity.Driver;
 import org.apache.ibatis.annotations.Param;
+import org.apache.ibatis.annotations.Result;
+import org.apache.ibatis.annotations.Results;
+import org.apache.ibatis.annotations.Select;
 import org.springframework.data.domain.Pageable;
 
 import java.util.List;
@@ -79,6 +82,31 @@ public interface DriverDao {
      * @return 影响行数
      */
     int deleteById(String id);
+
+//    @Select("select * from bill where driver_id = #{driverId}")
+//    @Results({
+//            @Result(property = "id", column = "id", javaType = String.class),
+//            @Result(property = "time", column = "time", javaType = Timestamp.class),
+//            @Result(property = "money", column = "money", javaType = String.class),
+//            @Result(property = "score", column = "score", javaType = Integer.class),
+//            @Result(property = "driverId", column = "driver_id", javaType = String.class),
+//            @Result(property = "status", column = "status", javaType = String.class),
+//            @Result(property = "duration", column = "duration", javaType = String.class),
+//            @Result(property = "fromPlace", column = "from_place", javaType = String.class),
+//            @Result(property = "toPlace", column = "to_place", javaType = String.class),
+//            @Result(property = "customerId", column = "customer_id", javaType = String.class),
+//    })
+    @Select("select * from driver")
+    @Results({
+            @Result(property = "id", column = "id", javaType = String.class),
+            @Result(property = "name", column = "name", javaType = String.class),
+            @Result(property = "tel", column = "tel", javaType = String.class),
+            @Result(property = "mail", column = "mail", javaType = String.class),
+            @Result(property = "runTimes", column = "run_times", javaType = Integer.class),
+            @Result(property = "preferPlace", column = "prefer_place", javaType = String.class),
+            @Result(property = "score", column = "score", javaType = Double.class),
+    })
+    List<Driver> getAll();
 
 }
 

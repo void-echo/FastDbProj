@@ -17,6 +17,7 @@ import javax.annotation.Resource;
  */
 @RestController
 @RequestMapping("driverCard")
+@CrossOrigin
 public class DriverCardController {
     /**
      * 服务对象

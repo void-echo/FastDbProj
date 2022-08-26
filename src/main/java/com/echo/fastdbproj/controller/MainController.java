@@ -2,16 +2,15 @@ package com.echo.fastdbproj.controller;
 
 import com.echo.fastdbproj.MyWebSocketHandler;
 import com.echo.fastdbproj.entity.Bill;
+import com.echo.fastdbproj.entity.Car;
 import com.echo.fastdbproj.entity.Customer;
 import com.echo.fastdbproj.entity.Driver;
-import com.echo.fastdbproj.service.BillService;
-import com.echo.fastdbproj.service.CustomerService;
-import com.echo.fastdbproj.service.DriverService;
-import com.echo.fastdbproj.service.MainService;
+import com.echo.fastdbproj.service.*;
 import com.echo.fastdbproj.util.BinUtils;
 import com.echo.fastdbproj.util.UnitedLog;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
@@ -43,6 +42,8 @@ public class MainController {
     DriverService driverService;
     CustomerService customerService;
 
+    CarService carService;
+
     BillService billService;
     Map<String, AtomicBoolean> handledMap = new HashMap<>(); // map preBillId to isCaught
 
@@ -54,6 +55,37 @@ public class MainController {
     @Autowired
     public void setHandler(MyWebSocketHandler handler) {
         this.handler = handler;
+    }
+
+    @RequestMapping("bind-car-to-driver")
+    public ResponseEntity<Boolean> bindCar2driver(String driverId, String carId) {
+        try {
+            Driver driver = driverService.queryById(driverId);
+            driver.setCarId(carId);
+            driverService.update(driver);
+        } catch (Exception e) {
+            return ResponseEntity.ok(false);
+        }
+        return ResponseEntity.ok(true);
+
+    }
+
+
+    @RequestMapping("sign-up-new-car")
+    public ResponseEntity<Boolean> signUp4newCar(String driverId, String carId, String band, int max_speed, String carType) {
+        Car car = new Car();
+        car.setCarType(carType);
+        car.setMaxSpeed(max_speed);
+        car.setId(carId);
+        car.setBand(band);
+        car.setStartUsingTime(LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss.SSS")));
+        exe.execute(() -> {
+            carService.insert(car);
+            Driver driver = driverService.queryById(driverId);
+            driver.setCarId(carId);
+            driverService.update(driver);
+        });
+        return ResponseEntity.ok(true);
     }
 
 
@@ -93,7 +125,8 @@ public class MainController {
     }
 
     @RequestMapping("query4new-travel")
-    public void newTravel(String customerId, double lng, double lat, double lng2, double lat2) {
+    // dateTime format: yyyy-MM-dd HH:mm:ss.SSS
+    public void newTravel(String customerId, double lng, double lat, double lng2, double lat2, Optional<Boolean> isYoYaKu, Optional<String> dateTime) {
         var preBillId = LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss.SSS")) + customerId;
         Bill b_ = new Bill();
         var flag = new AtomicBoolean(false);
@@ -106,13 +139,40 @@ public class MainController {
         b_.setTime(Timestamp.from(Instant.now()));
         billMap.put(preBillId, b_);
         exe.execute(() -> billService.insert(b_));
-        var availableDrivers = this.mainService.getChiKaiKuRuMasOfKyaKu(customerId, lng, lat);
+        List<String> availableDrivers;
+        var YuYue = isYoYaKu.isPresent() && isYoYaKu.get() && dateTime.isPresent();
+        if (YuYue) {
+            var drivers = driverService.getAll();
+            drivers.removeIf((driver -> !this.handler.id2DriverDBCache.containsKey(driver.getId())));
+            availableDrivers = this.mainService.yoYaKu__getChiKaiKuRuMasOfKyaKu(customerId, lng, lat, drivers);
+        } else {
+            availableDrivers = this.mainService.getChiKaiKuRuMasOfKyaKu(customerId, lng, lat);
+        }
         exe.execute(() -> {
             try {
                 for (var driverId : availableDrivers) {
                     if (!flag.get()) {
-                        handler.send2driver4billCatch(preBillId, driverId, customerId, lng, lat, lng2, lat2);
-                        sleep(3000);
+                        if (!YuYue) {
+                            handler.send2driver4billCatch(preBillId, driverId, customerId, lng, lat, lng2, lat2);
+                            sleep(3000);
+                        } else {
+                            var json_ =
+                                    """
+                                    {
+                                        "preBillId": "%s",
+                                        "customerId": "%s",
+                                        "lng": %f,
+                                        "lat": %f,
+                                        "lng2": %f,
+                                        "lat2": %f,
+                                        "isYoYaKu": true,
+                                        "dateTime": %s
+                                        
+                                    }
+                                    """.formatted(preBillId, customerId, lng, lat, lng2, lat2, dateTime.get());
+                            handler.send2driver(driverId, json_);
+                            sleep(3000);
+                        }
                     }
                 }
             } catch (IOException | InterruptedException e) {
@@ -200,9 +260,10 @@ public class MainController {
             billService.update(bill);
             var driverId = bill.getDriverId();
             if (score_.isPresent()) {
-
+                Driver driver = driverService.queryById(driverId);
+                driver.setScore((driver.getScore() * driver.getRunTimes() + score_.get()) / (driver.getRunTimes() + 1));
+                driverService.update(driver);
             }
-
         });
     }
 
@@ -333,5 +394,10 @@ public class MainController {
     @Autowired
     public void setBinUtils(BinUtils binUtils) {
         this.binUtils = binUtils;
+    }
+
+    @Autowired
+    public void setCarService(CarService carService) {
+        this.carService = carService;
     }
 }

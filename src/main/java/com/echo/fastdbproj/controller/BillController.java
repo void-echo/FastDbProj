@@ -18,6 +18,7 @@ import java.util.List;
  */
 @RestController
 @RequestMapping("bill")
+@CrossOrigin
 public class BillController {
     /**
      * 服务对象

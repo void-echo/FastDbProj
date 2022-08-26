@@ -1,5 +1,7 @@
 package com.echo.fastdbproj.service;
 
+import com.echo.fastdbproj.entity.Driver;
+
 import java.util.List;
 
 public interface MainService {
@@ -14,6 +16,8 @@ public interface MainService {
     void updateDriverPlace(String id, double lng, double lat);
 
     List<String> getChiKaiKuRuMasOfKyaKu(String kyaId, double lng, double lat);
+
+    List<String> yoYaKu__getChiKaiKuRuMasOfKyaKu(String kyaId, double lng, double lat, List<Driver> drivers);
 
     void updateCustomerPlace(String id, double lng, double lat);
 

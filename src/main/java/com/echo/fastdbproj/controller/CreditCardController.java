@@ -17,6 +17,7 @@ import javax.annotation.Resource;
  */
 @RestController
 @RequestMapping("creditCard")
+@CrossOrigin
 public class CreditCardController {
     /**
      * 服务对象

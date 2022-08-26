@@ -39,6 +39,17 @@ public class BinUtils {
             return new double[]{d1, d2};
     }
 
+    // type: [lng, lat]
+    public double[] parseLL2Double(String LL) {
+        var str = LL.replace('[', ' ').replace(']', ' ').split(",");
+        for (var s : str) {
+            s = s.trim();
+        }
+        var d1 = Double.parseDouble(str[0]);
+        var d2 = Double.parseDouble(str[1]);
+        return new double[]{d1, d2};
+    }
+
     public void checkStartWith(String msg, String prefix) {
         var flg =  msg.startsWith(prefix);
         if (!flg) {
@@ -56,4 +67,13 @@ public class BinUtils {
         Duration duration = Duration.between(start, end);
         return duration.toString();
     }
+
+    public String mixPreferPlace(String honRai, int times, String genZai) {
+        var lngLat = parseLL2Double(honRai);
+        var l_ = parseLL2Double(genZai);
+        var lng = ( lngLat[0] * times + l_[0] ) / (times + 1);
+        var lat = ( lngLat[1] * times + l_[1] ) / (times + 1);
+        return "[%f , %f]".formatted(lng, lat);
+    }
+
 }

@@ -1,7 +1,9 @@
 package com.echo.fastdbproj.service.impl;
 
+import com.echo.fastdbproj.entity.Driver;
 import com.echo.fastdbproj.service.MainService;
 import com.echo.fastdbproj.util.BinUtils;
+import com.echo.fastdbproj.util.DistanceCalc;
 import com.echo.fastdbproj.util.JsonProvider;
 import com.echo.fastdbproj.util.UnitedLog;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -68,6 +70,21 @@ public class MainServiceImpl implements MainService {
         );
 
         //        driverIds.forEach((e) -> System.out.print(e + "\t"));
+        return driverIds;
+    }
+
+    @Override
+    public List<String> yoYaKu__getChiKaiKuRuMasOfKyaKu(String kyaId, double lng, double lat, List<Driver> drivers) {
+        List<String> driverIds = new ArrayList<>(driverPlaceMap.keySet());
+        driverIds.removeIf(busyDriverIds::contains);
+        driverIds.removeIf(Objects::isNull);
+        Map<String, DistanceCalc> map = new HashMap<>();
+        drivers.forEach((drive) -> {
+            var id = drive.getId();
+            DistanceCalc calc = new DistanceCalc("[%f, %f]".formatted(lng, lat), drive.getPreferPlace());
+            map.put(id, calc);
+        });
+        driverIds.sort(Comparator.comparing(map::get));
         return driverIds;
     }
 
