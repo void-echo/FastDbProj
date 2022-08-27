@@ -48,6 +48,7 @@ public class MainController {
     Map<String, AtomicBoolean> handledMap = new HashMap<>(); // map preBillId to isCaught
 
     Map<String, Bill> billMap = new HashMap<>();
+    Map<String, AtomicBoolean> handleMap_YYK = new HashMap<>();
     Executor exe;
 
     BinUtils binUtils;
@@ -126,11 +127,16 @@ public class MainController {
 
     @RequestMapping("query4new-travel")
     // dateTime format: yyyy-MM-dd HH:mm:ss.SSS
-    public void newTravel(String customerId, double lng, double lat, double lng2, double lat2, Optional<Boolean> isYoYaKu, Optional<String> dateTime) {
+    public ResponseEntity<String> newTravel(String customerId, double lng, double lat, double lng2, double lat2, Optional<Boolean> isYoYaKu, Optional<String> dateTime, Optional<String> preBillId__) {
+        var YuYue = isYoYaKu.isPresent() && isYoYaKu.get() && dateTime.isPresent();
         var preBillId = LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss.SSS")) + customerId;
         Bill b_ = new Bill();
         var flag = new AtomicBoolean(false);
+        var flag_YYK = new AtomicBoolean(false);
         handledMap.put(preBillId, flag);
+        if (YuYue) {
+            handleMap_YYK.put(preBillId, flag_YYK);
+        }
         b_.setId(preBillId);
         b_.setStatus("HANGING");
         b_.setFromPlace(lngLat2String(lng, lat));
@@ -140,11 +146,15 @@ public class MainController {
         billMap.put(preBillId, b_);
         exe.execute(() -> billService.insert(b_));
         List<String> availableDrivers;
-        var YuYue = isYoYaKu.isPresent() && isYoYaKu.get() && dateTime.isPresent();
         if (YuYue) {
+            UnitedLog.print("是预约");
             var drivers = driverService.getAll();
             drivers.removeIf((driver -> !this.handler.id2DriverDBCache.containsKey(driver.getId())));
             availableDrivers = this.mainService.yoYaKu__getChiKaiKuRuMasOfKyaKu(customerId, lng, lat, drivers);
+            UnitedLog.print("");
+            availableDrivers.forEach((d) -> {
+                System.out.print(d.concat("\t"));
+            });
         } else {
             availableDrivers = this.mainService.getChiKaiKuRuMasOfKyaKu(customerId, lng, lat);
         }
@@ -156,8 +166,8 @@ public class MainController {
                             handler.send2driver4billCatch(preBillId, driverId, customerId, lng, lat, lng2, lat2);
                             sleep(3000);
                         } else {
-                            var json_ =
-                                    """
+                            if (!flag_YYK.get()) {
+                                var json_ = """
                                     {
                                         "preBillId": "%s",
                                         "customerId": "%s",
@@ -166,12 +176,13 @@ public class MainController {
                                         "lng2": %f,
                                         "lat2": %f,
                                         "isYoYaKu": true,
-                                        "dateTime": %s
+                                        "dateTime": "%s"
                                         
                                     }
                                     """.formatted(preBillId, customerId, lng, lat, lng2, lat2, dateTime.get());
-                            handler.send2driver(driverId, json_);
-                            sleep(3000);
+                                handler.send2driver(driverId, json_);
+                                sleep(3000);
+                            }
                         }
                     }
                 }
@@ -179,11 +190,12 @@ public class MainController {
                 throw new RuntimeException(e);
             }
         });
+        return ResponseEntity.ok("success");
     }
 
 
     @RequestMapping("handle-new-travel")
-    public synchronized String handleNewTravel(String preBillId, String customerId, String driverId) {
+    public synchronized String handleNewTravel(String preBillId, String customerId, String driverId, Optional<Boolean> isProcessingYYK) {
         UnitedLog.print("接单的司机的 ID: " + driverId);
         var flag = handledMap.get(preBillId);
         if (flag.get()) {
@@ -199,9 +211,6 @@ public class MainController {
         exe.execute(() -> {
             billService.update(bill);
             var driverPlace = mainService.getWorkingDriverPlaceOf(driverId).split(",");
-            for (var s : driverPlace) {
-                s = s.trim();
-            }
             var lng = Double.parseDouble(driverPlace[0]);
             var lat = Double.parseDouble(driverPlace[1]);
             var msg = """
@@ -221,6 +230,32 @@ public class MainController {
         return "success";
     }
 
+    @RequestMapping("handle-YYK-bill-by-driver")
+    public synchronized String handleYYKBill(String preBillId, String customerId, String driverId) {
+        var flag = handleMap_YYK.get(preBillId);
+        if (flag.get()) {
+            var str = "ERR: preBillId " + preBillId + " had been handled";
+            UnitedLog.err(str);
+            return str;
+        }
+        flag.set(true);
+        var bill = billMap.get(preBillId);
+        bill.setStatus("WAITING");
+        bill.setDriverId(driverId);
+        exe.execute(() -> {
+            billService.update(bill);
+            var msg = """
+                    "ID": "%s",
+                    "YYK_GOT": true
+                    """.formatted(driverId);
+            try {
+                handler.send2customer(customerId, msg);
+            } catch (IOException e) {
+                throw new RuntimeException(e);
+            }
+        });
+        return "success";
+    }
 
 
     // 车主

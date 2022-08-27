@@ -76,7 +76,7 @@ public class MainServiceImpl implements MainService {
     @Override
     public List<String> yoYaKu__getChiKaiKuRuMasOfKyaKu(String kyaId, double lng, double lat, List<Driver> drivers) {
         List<String> driverIds = new ArrayList<>(driverPlaceMap.keySet());
-        driverIds.removeIf(busyDriverIds::contains);
+        // driverIds.removeIf(busyDriverIds::contains);
         driverIds.removeIf(Objects::isNull);
         Map<String, DistanceCalc> map = new HashMap<>();
         drivers.forEach((drive) -> {
