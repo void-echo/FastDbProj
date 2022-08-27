@@ -1,10 +1,7 @@
 package com.echo.fastdbproj.controller;
 
 import com.echo.fastdbproj.MyWebSocketHandler;
-import com.echo.fastdbproj.entity.Bill;
-import com.echo.fastdbproj.entity.Car;
-import com.echo.fastdbproj.entity.Customer;
-import com.echo.fastdbproj.entity.Driver;
+import com.echo.fastdbproj.entity.*;
 import com.echo.fastdbproj.service.*;
 import com.echo.fastdbproj.util.BinUtils;
 import com.echo.fastdbproj.util.UnitedLog;
@@ -41,6 +38,8 @@ public class MainController {
     MyWebSocketHandler handler;
     DriverService driverService;
     CustomerService customerService;
+
+    ReserveBillService reserveBillService;
 
     CarService carService;
 
@@ -127,7 +126,10 @@ public class MainController {
 
     @RequestMapping("query4new-travel")
     // dateTime format: yyyy-MM-dd HH:mm:ss.SSS
-    public ResponseEntity<String> newTravel(String customerId, double lng, double lat, double lng2, double lat2, Optional<Boolean> isYoYaKu, Optional<String> dateTime, Optional<String> preBillId__) {
+    public ResponseEntity<String> newTravel(String customerId, double lng, double lat, double lng2, double lat2,
+                                            Optional<Boolean> isYoYaKu,
+                                            Optional<String> dateTime,
+                                            Optional<String> yoYaKuDriverId) {
         var YuYue = isYoYaKu.isPresent() && isYoYaKu.get() && dateTime.isPresent();
         var preBillId = LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss.SSS")) + customerId;
         Bill b_ = new Bill();
@@ -148,6 +150,13 @@ public class MainController {
         List<String> availableDrivers;
         if (YuYue) {
             UnitedLog.print("是预约");
+            exe.execute(() -> {
+                ReserveBill reserveBill = new ReserveBill();
+                reserveBill.setBillId(preBillId);
+                reserveBill.setCustomerId(customerId);
+                reserveBill.setReserveOngoingTime(dateTime.get());
+                reserveBillService.insert(reserveBill);
+            });
             var drivers = driverService.getAll();
             drivers.removeIf((driver -> !this.handler.id2DriverDBCache.containsKey(driver.getId())));
             availableDrivers = this.mainService.yoYaKu__getChiKaiKuRuMasOfKyaKu(customerId, lng, lat, drivers);
@@ -213,7 +222,8 @@ public class MainController {
             var driverPlace = mainService.getWorkingDriverPlaceOf(driverId).split(",");
             var lng = Double.parseDouble(driverPlace[0]);
             var lat = Double.parseDouble(driverPlace[1]);
-            var msg = """
+            var msg =
+                    """
                     {
                          "ID": "%s",
                          "lng": %f,
@@ -223,6 +233,9 @@ public class MainController {
             UnitedLog.print(msg);
             try {
                 handler.send2customer(customerId, msg);
+                ReserveBill reserveBill = reserveBillService.queryById(preBillId);
+                reserveBill.setDriverId(driverId);
+                reserveBillService.update(reserveBill);
             } catch (IOException e) {
                 throw new RuntimeException(e);
             }
@@ -244,9 +257,12 @@ public class MainController {
         bill.setDriverId(driverId);
         exe.execute(() -> {
             billService.update(bill);
-            var msg = """
-                    "ID": "%s",
-                    "YYK_GOT": true
+            var msg =
+                    """
+                    {
+                        "ID": "%s",
+                        "YYK_GOT": true
+                    }
                     """.formatted(driverId);
             try {
                 handler.send2customer(customerId, msg);
@@ -434,5 +450,10 @@ public class MainController {
     @Autowired
     public void setCarService(CarService carService) {
         this.carService = carService;
+    }
+
+    @Autowired
+    public void setReserveBillService(ReserveBillService reserveBillService) {
+        this.reserveBillService = reserveBillService;
     }
 }
