@@ -102,6 +102,39 @@ public class MainController {
         return driver;
     }
 
+    // 顾客给司机
+    @RequestMapping("go-on-reserved-bill")
+    public ResponseEntity<String> goOnReservedBill(String billId) {
+        var reservedBill = reserveBillService.queryById(billId);
+        var customerId = reservedBill.getCustomerId();
+        var driverId = reservedBill.getDriverId();
+        UnitedLog.print("customerId of reservedBill: " + customerId);
+        UnitedLog.print("driverId of reservedBill: " + driverId);
+        var bill = billService.queryById(billId);
+        var LngLatA = binUtils.parseLL2Double(bill.getFromPlace());
+        var LngLatB = binUtils.parseLL2Double(bill.getToPlace());
+        exe.execute(() -> {
+            var msg =
+            """
+            {
+                "goOnReservedBill": true,
+                "preBillId": "%s",
+                "customerId": "%s",
+                "lng": %f,
+                "lat": %f,
+                "lng2": %f,
+                "lat2": %f
+            }
+            """.formatted(billId, customerId, LngLatA[0], LngLatA[1], LngLatB[0], LngLatB[1]);
+            try {
+                handler.send2driver(driverId, msg);
+            } catch (IOException e) {
+                throw new RuntimeException(e);
+            }
+        });
+        return ResponseEntity.ok("success");
+    }
+
 
     @RequestMapping("customerInfo")
     public Customer getCustomerInfoOfID(String customerId) {
@@ -126,10 +159,10 @@ public class MainController {
 
     @RequestMapping("query4new-travel")
     // dateTime format: yyyy-MM-dd HH:mm:ss.SSS
+    // 如果 isYoYaKu 是 true, 是顾客发起的预约请求系列中的 第一个.
     public ResponseEntity<String> newTravel(String customerId, double lng, double lat, double lng2, double lat2,
                                             Optional<Boolean> isYoYaKu,
-                                            Optional<String> dateTime,
-                                            Optional<String> yoYaKuDriverId) {
+                                            Optional<String> dateTime) {
         var YuYue = isYoYaKu.isPresent() && isYoYaKu.get() && dateTime.isPresent();
         var preBillId = LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss.SSS")) + customerId;
         Bill b_ = new Bill();
@@ -177,18 +210,16 @@ public class MainController {
                         } else {
                             if (!flag_YYK.get()) {
                                 var json_ = """
-                                    {
-                                        "preBillId": "%s",
-                                        "customerId": "%s",
-                                        "lng": %f,
-                                        "lat": %f,
-                                        "lng2": %f,
-                                        "lat2": %f,
-                                        "isYoYaKu": true,
-                                        "dateTime": "%s"
-                                        
-                                    }
-                                    """.formatted(preBillId, customerId, lng, lat, lng2, lat2, dateTime.get());
+                                {
+                                    "preBillId": "%s",
+                                    "customerId": "%s",
+                                    "lng": %f,
+                                    "lat": %f,
+                                    "lng2": %f,
+                                    "lat2": %f,
+                                    "isYoYaKu": true,
+                                    "dateTime": "%s"
+                                }""".formatted(preBillId, customerId, lng, lat, lng2, lat2, dateTime.get());
                                 handler.send2driver(driverId, json_);
                                 sleep(3000);
                             }
@@ -204,7 +235,9 @@ public class MainController {
 
 
     @RequestMapping("handle-new-travel")
-    public synchronized String handleNewTravel(String preBillId, String customerId, String driverId, Optional<Boolean> isProcessingYYK) {
+    public synchronized String handleNewTravel(String preBillId, String customerId, String driverId, Optional<Boolean> isProcessingReservedBill) {
+        var yyk = isProcessingReservedBill.isPresent() && isProcessingReservedBill.get();
+
         UnitedLog.print("接单的司机的 ID: " + driverId);
         var flag = handledMap.get(preBillId);
         if (flag.get()) {
@@ -227,15 +260,13 @@ public class MainController {
                     {
                          "ID": "%s",
                          "lng": %f,
-                         "lat": %f
+                         "lat": %f,
+                         "yyk": %b
                     }
-                    """.formatted(driverId, lng, lat);
+                    """.formatted(driverId, lng, lat, yyk);
             UnitedLog.print(msg);
             try {
                 handler.send2customer(customerId, msg);
-                ReserveBill reserveBill = reserveBillService.queryById(preBillId);
-                reserveBill.setDriverId(driverId);
-                reserveBillService.update(reserveBill);
             } catch (IOException e) {
                 throw new RuntimeException(e);
             }
@@ -247,7 +278,7 @@ public class MainController {
     public synchronized String handleYYKBill(String preBillId, String customerId, String driverId) {
         var flag = handleMap_YYK.get(preBillId);
         if (flag.get()) {
-            var str = "ERR: preBillId " + preBillId + " had been handled";
+            var str = "Reserved Bill : " + preBillId + " had been handled";
             UnitedLog.err(str);
             return str;
         }
@@ -261,11 +292,15 @@ public class MainController {
                     """
                     {
                         "ID": "%s",
-                        "YYK_GOT": true
+                        "YYK_GOT": true,
+                        "reservedBillId": "%s"
                     }
-                    """.formatted(driverId);
+                    """.formatted(driverId, preBillId);
             try {
                 handler.send2customer(customerId, msg);
+                ReserveBill reserveBill = reserveBillService.queryById(preBillId);
+                reserveBill.setDriverId(driverId);
+                reserveBillService.update(reserveBill);
             } catch (IOException e) {
                 throw new RuntimeException(e);
             }
