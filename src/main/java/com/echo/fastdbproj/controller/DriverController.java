@@ -8,6 +8,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import javax.annotation.Resource;
+import java.util.List;
 
 /**
  * (Driver)表控制层
@@ -81,5 +82,10 @@ public class DriverController {
         return ResponseEntity.ok(this.driverService.deleteById(id));
     }
 
+
+    @GetMapping("get-all")
+    public ResponseEntity<List<Driver>> getAll() {
+        return ResponseEntity.ok(driverService.getAll());
+    }
 }
 

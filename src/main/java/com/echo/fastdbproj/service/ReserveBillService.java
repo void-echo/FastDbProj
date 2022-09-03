@@ -4,6 +4,8 @@ import com.echo.fastdbproj.entity.ReserveBill;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 
+import java.util.List;
+
 /**
  * (ReserveBill)表服务接口
  *
@@ -52,5 +54,7 @@ public interface ReserveBillService {
      * @return 是否成功
      */
     boolean deleteById(String billId);
+
+    List<ReserveBill> getAll();
 
 }

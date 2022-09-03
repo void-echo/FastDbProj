@@ -80,5 +80,7 @@ public interface CreditCardDao {
      */
     int deleteById(String id);
 
+    List<CreditCard> getAll();
+
 }
 

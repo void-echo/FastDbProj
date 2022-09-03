@@ -7,6 +7,7 @@ import com.echo.fastdbproj.util.BinUtils;
 import com.echo.fastdbproj.util.UnitedLog;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.http.RequestEntity;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -40,6 +41,7 @@ public class MainController {
     CustomerService customerService;
 
     ReserveBillService reserveBillService;
+    DisputeService disputeService;
 
     CarService carService;
 
@@ -328,6 +330,39 @@ public class MainController {
     }
 
 
+    @RequestMapping("raise-dispute")
+    public ResponseEntity<String> raiseDispute(String billId, String type, String contents) {
+        var dis = new Dispute();
+        dis.setBillId(billId);
+        dis.setType(type);
+        dis.setStatus("HANGING");
+        dis.setTime(Timestamp.from(Instant.now()));
+        exe.execute(() -> {
+            var bill = billService.queryById(billId);
+            dis.setCustomerId(bill.getCustomerId());
+            dis.setDriverId(bill.getDriverId());
+            dis.setId(Instant.now().toString() + dis.getCustomerId());
+            dis.setContents(contents);
+            disputeService.insert(dis);
+        });
+        return ResponseEntity.ok("success");
+    }
+
+
+    @RequestMapping("cancel-dispute")
+    public  ResponseEntity<String> cancelDispute(String disputeId) {
+        var dis = disputeService.queryById(disputeId);
+        if (dis == null) {
+            return ResponseEntity.ok("failed: cannot find dispute with id \"%s\"".formatted(disputeId));
+        }
+        var billId = dis.getBillId();
+        var bill = billService.queryById(billId);
+        bill.setStatus("FINISHED");
+        billService.update(bill);
+        boolean b = disputeService.deleteById(disputeId);
+        return b ? ResponseEntity.ok("success") : ResponseEntity.ok("failed: cannot delete dispute with id \"%s\"".formatted(disputeId)) ;
+    }
+
     // 顾客
     @RequestMapping("PayAndGiveScore")
     public void giveScore(String billId, Optional<Integer> score_) {
@@ -351,6 +386,11 @@ public class MainController {
                 driverService.update(driver);
             }
         });
+    }
+
+    @RequestMapping("get-all-drivers")
+    public List<Driver> getAllDrivers() {
+        return null;
     }
 
     @Autowired
@@ -490,5 +530,10 @@ public class MainController {
     @Autowired
     public void setReserveBillService(ReserveBillService reserveBillService) {
         this.reserveBillService = reserveBillService;
+    }
+
+    @Autowired
+    public void setDisputeService(DisputeService disputeService) {
+        this.disputeService = disputeService;
     }
 }

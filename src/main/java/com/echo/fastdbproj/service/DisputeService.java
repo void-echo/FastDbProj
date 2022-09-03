@@ -4,6 +4,8 @@ import com.echo.fastdbproj.entity.Dispute;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 
+import java.util.List;
+
 /**
  * (Dispute)表服务接口
  *
@@ -52,5 +54,7 @@ public interface DisputeService {
      * @return 是否成功
      */
     boolean deleteById(String id);
+
+    List<Dispute> getAll();
 
 }

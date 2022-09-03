@@ -80,5 +80,6 @@ public interface CustomerDao {
      */
     int deleteById(String id);
 
+    List<Customer> getAll();
 }
 

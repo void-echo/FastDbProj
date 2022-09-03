@@ -68,6 +68,9 @@
             </if>
         </where>
     </select>
+    <select id="getAll" resultType="com.echo.fastdbproj.entity.Car">
+        select * from car;
+    </select>
 
     <!--新增所有列-->
     <insert id="insert" keyProperty="id" useGeneratedKeys="false">

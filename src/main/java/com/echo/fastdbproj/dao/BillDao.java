@@ -138,5 +138,7 @@ public interface BillDao {
     })
     List<Bill> selectAllByDriverIdList(String driverId);
 
+
+    List<Bill> getAll();
 }
 

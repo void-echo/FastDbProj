@@ -9,6 +9,7 @@ import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
 
 import javax.annotation.Resource;
+import java.util.List;
 
 /**
  * (CustomerPayApproach)表服务实现类
@@ -78,5 +79,10 @@ public class CustomerPayApproachServiceImpl implements CustomerPayApproachServic
     @Override
     public boolean deleteById(String payApproachId) {
         return this.customerPayApproachDao.deleteById(payApproachId) > 0;
+    }
+
+    @Override
+    public List<CustomerPayApproach> getAll() {
+        return customerPayApproachDao.getAll();
     }
 }

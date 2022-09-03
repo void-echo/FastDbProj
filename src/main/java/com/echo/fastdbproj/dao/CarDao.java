@@ -80,5 +80,7 @@ public interface CarDao {
      */
     int deleteById(String id);
 
+    List<Car> getAll();
+
 }
 

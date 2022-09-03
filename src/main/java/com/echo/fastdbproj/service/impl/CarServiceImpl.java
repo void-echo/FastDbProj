@@ -9,6 +9,7 @@ import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
 
 import javax.annotation.Resource;
+import java.util.List;
 
 /**
  * (Car)表服务实现类
@@ -78,5 +79,10 @@ public class CarServiceImpl implements CarService {
     @Override
     public boolean deleteById(String id) {
         return this.carDao.deleteById(id) > 0;
+    }
+
+    @Override
+    public List<Car> getAll() {
+        return carDao.getAll();
     }
 }

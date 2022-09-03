@@ -8,6 +8,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import javax.annotation.Resource;
+import java.util.List;
 
 /**
  * (ReserveBill)表控制层
@@ -79,6 +80,11 @@ public class ReserveBillController {
     @DeleteMapping
     public ResponseEntity<Boolean> deleteById(String id) {
         return ResponseEntity.ok(this.reserveBillService.deleteById(id));
+    }
+
+    @GetMapping("get-all")
+    public ResponseEntity<List<ReserveBill>> getAll() {
+        return ResponseEntity.ok(reserveBillService.getAll());
     }
 
 }

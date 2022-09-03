@@ -8,6 +8,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import javax.annotation.Resource;
+import java.util.List;
 
 /**
  * (CustomerPayApproach)表控制层
@@ -81,5 +82,10 @@ public class CustomerPayApproachController {
         return ResponseEntity.ok(this.customerPayApproachService.deleteById(id));
     }
 
+
+    @GetMapping("get-all")
+    public ResponseEntity<List<CustomerPayApproach>> getAll() {
+        return ResponseEntity.ok(customerPayApproachService.getAll());
+    }
 }
 

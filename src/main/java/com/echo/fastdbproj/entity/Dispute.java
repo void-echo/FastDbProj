@@ -1,7 +1,10 @@
 package com.echo.fastdbproj.entity;
 
+import com.echo.fastdbproj.util.UnitedLog;
+
 import java.util.Date;
 import java.io.Serializable;
+import java.util.Set;
 
 /**
  * (Dispute)实体类
@@ -11,6 +14,9 @@ import java.io.Serializable;
  */
 public class Dispute implements Serializable {
     private static final long serialVersionUID = 176092209243473113L;
+    public static final Set<String> dispute_possible_status = Set.of(
+            "HANGING", "FINISHED", "CANCELED", "NEED_TO_BE_CHECKED"
+    );
 
     private String id;
 
@@ -74,6 +80,9 @@ public class Dispute implements Serializable {
     }
 
     public void setType(String type) {
+        // 金额问题
+        // 安全问题
+        // 其他问题
         this.type = type;
     }
 
@@ -82,7 +91,10 @@ public class Dispute implements Serializable {
     }
 
     public void setStatus(String status) {
-        this.status = status;
+        if (dispute_possible_status.contains(status))
+            this.status = status;
+        else
+            UnitedLog.err("Unsupported Dispute Status: " + status + "\nExpected: " + dispute_possible_status);
     }
 
     public String getContents() {

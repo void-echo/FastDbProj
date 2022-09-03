@@ -4,6 +4,8 @@ import com.echo.fastdbproj.entity.Car;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 
+import java.util.List;
+
 /**
  * (Car)表服务接口
  *
@@ -52,5 +54,7 @@ public interface CarService {
      * @return 是否成功
      */
     boolean deleteById(String id);
+
+    List<Car> getAll();
 
 }

@@ -80,5 +80,7 @@ public interface DriverCardDao {
      */
     int deleteById(String driverId);
 
+    List<DriverCard>  getAll();
+
 }
 

@@ -60,4 +60,6 @@ public interface BillService {
     List<Bill> selectAllByCustomerId(String customerId);
     List<Bill> selectAllByDriverId(String driverId);
 
+    List<Bill> getAll();
+
 }

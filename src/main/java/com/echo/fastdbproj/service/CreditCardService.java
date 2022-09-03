@@ -4,6 +4,8 @@ import com.echo.fastdbproj.entity.CreditCard;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 
+import java.util.List;
+
 /**
  * (CreditCard)表服务接口
  *
@@ -53,4 +55,5 @@ public interface CreditCardService {
      */
     boolean deleteById(String id);
 
+    List<CreditCard> getAll();
 }

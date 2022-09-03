@@ -108,6 +108,9 @@
             </if>
         </where>
     </select>
+    <select id="getAll" resultType="com.echo.fastdbproj.entity.Bill">
+        select * from bill;
+    </select>
 
     <!--新增所有列-->
     <insert id="insert" keyProperty="id" useGeneratedKeys="false">

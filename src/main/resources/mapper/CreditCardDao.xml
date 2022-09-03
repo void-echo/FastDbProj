@@ -60,6 +60,9 @@
             </if>
         </where>
     </select>
+    <select id="getAll" resultType="com.echo.fastdbproj.entity.CreditCard">
+        select * from credit_card;
+    </select>
 
     <!--新增所有列-->
     <insert id="insert" keyProperty="id" useGeneratedKeys="false">

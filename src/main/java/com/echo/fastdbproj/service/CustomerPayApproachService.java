@@ -4,6 +4,8 @@ import com.echo.fastdbproj.entity.CustomerPayApproach;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 
+import java.util.List;
+
 /**
  * (CustomerPayApproach)表服务接口
  *
@@ -53,4 +55,5 @@ public interface CustomerPayApproachService {
      */
     boolean deleteById(String payApproachId);
 
+    List<CustomerPayApproach> getAll();
 }

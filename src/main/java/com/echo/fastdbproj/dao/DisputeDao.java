@@ -80,5 +80,7 @@ public interface DisputeDao {
      */
     int deleteById(String id);
 
+
+    List<Dispute> getAll();
 }
 

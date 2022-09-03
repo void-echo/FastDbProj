@@ -96,4 +96,9 @@ public class BillServiceImpl implements BillService {
     public List<Bill> selectAllByDriverId(String driverId) {
         return billDao.selectAllByDriverIdList(driverId);
     }
+
+    @Override
+    public List<Bill> getAll() {
+        return billDao.getAll();
+    }
 }

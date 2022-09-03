@@ -8,6 +8,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import javax.annotation.Resource;
+import java.util.List;
 
 /**
  * (Customer)表控制层
@@ -86,5 +87,9 @@ public class CustomerController {
         return ResponseEntity.ok(this.customerService.deleteById(id));
     }
 
+    @GetMapping("get-all")
+    public ResponseEntity<List<Customer>> getAll() {
+        return ResponseEntity.ok(customerService.getAll());
+    }
 }
 

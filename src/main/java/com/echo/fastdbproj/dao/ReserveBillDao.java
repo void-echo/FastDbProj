@@ -80,5 +80,7 @@ public interface ReserveBillDao {
      */
     int deleteById(String billId);
 
+
+    List<ReserveBill> getAll();
 }
 

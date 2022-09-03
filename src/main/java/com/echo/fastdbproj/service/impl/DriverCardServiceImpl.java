@@ -9,6 +9,7 @@ import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
 
 import javax.annotation.Resource;
+import java.util.List;
 
 /**
  * (DriverCard)表服务实现类
@@ -78,5 +79,10 @@ public class DriverCardServiceImpl implements DriverCardService {
     @Override
     public boolean deleteById(String driverId) {
         return this.driverCardDao.deleteById(driverId) > 0;
+    }
+
+    @Override
+    public List<DriverCard> getAll() {
+        return driverCardDao.getAll();
     }
 }

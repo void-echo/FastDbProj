@@ -99,5 +99,10 @@ public class BillController {
     public ResponseEntity<List<Bill>> getAllByDriver(String driverId) {
         return ResponseEntity.ok(billService.selectAllByDriverId(driverId));
     }
+
+    @GetMapping("get-all")
+    public ResponseEntity<List<Bill>> getAll() {
+        return ResponseEntity.ok(billService.getAll());
+    }
 }
 

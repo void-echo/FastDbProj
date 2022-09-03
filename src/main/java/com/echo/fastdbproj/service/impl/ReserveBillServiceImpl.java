@@ -9,6 +9,7 @@ import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
 
 import javax.annotation.Resource;
+import java.util.List;
 
 /**
  * (ReserveBill)表服务实现类
@@ -78,5 +79,10 @@ public class ReserveBillServiceImpl implements ReserveBillService {
     @Override
     public boolean deleteById(String billId) {
         return this.reserveBillDao.deleteById(billId) > 0;
+    }
+
+    @Override
+    public List<ReserveBill> getAll() {
+        return reserveBillDao.getAll();
     }
 }

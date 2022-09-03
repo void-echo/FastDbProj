@@ -8,6 +8,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import javax.annotation.Resource;
+import java.util.List;
 
 /**
  * (Dispute)表控制层
@@ -81,5 +82,10 @@ public class DisputeController {
         return ResponseEntity.ok(this.disputeService.deleteById(id));
     }
 
+
+    @GetMapping("get-all")
+    public ResponseEntity<List<Dispute>> getAll() {
+        return ResponseEntity.ok(disputeService.getAll());
+    }
 }
 

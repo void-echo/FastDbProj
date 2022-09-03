@@ -60,6 +60,9 @@
             </if>
         </where>
     </select>
+    <select id="getAll" resultType="com.echo.fastdbproj.entity.ReserveBill">
+        select * from reserve_bill;
+    </select>
 
     <!--新增所有列-->
     <insert id="insert" keyProperty="billId" useGeneratedKeys="false">

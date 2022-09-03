@@ -52,6 +52,9 @@
             </if>
         </where>
     </select>
+    <select id="getAll" resultType="com.echo.fastdbproj.entity.CustomerPayApproach">
+        select * from customer_pay_approach
+    </select>
 
     <!--新增所有列-->
     <insert id="insert" keyProperty="payApproachId" useGeneratedKeys="false">

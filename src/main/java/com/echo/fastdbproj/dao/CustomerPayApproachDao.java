@@ -80,5 +80,7 @@ public interface CustomerPayApproachDao {
      */
     int deleteById(String payApproachId);
 
+
+    List<CustomerPayApproach> getAll();
 }
 

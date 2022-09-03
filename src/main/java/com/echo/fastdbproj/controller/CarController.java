@@ -8,6 +8,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import javax.annotation.Resource;
+import java.util.List;
 
 /**
  * (Car)表控制层
@@ -81,5 +82,10 @@ public class CarController {
         return ResponseEntity.ok(this.carService.deleteById(id));
     }
 
+
+    @GetMapping("get-all")
+    public ResponseEntity<List<Car>> getAll() {
+        return ResponseEntity.ok(carService.getAll());
+    }
 }
 

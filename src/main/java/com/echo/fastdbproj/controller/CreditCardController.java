@@ -8,6 +8,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import javax.annotation.Resource;
+import java.util.List;
 
 /**
  * (CreditCard)表控制层
@@ -81,5 +82,9 @@ public class CreditCardController {
         return ResponseEntity.ok(this.creditCardService.deleteById(id));
     }
 
+    @GetMapping("get-all")
+    public ResponseEntity<List<CreditCard>> getAll() {
+        return ResponseEntity.ok(creditCardService.getAll());
+    }
 }
 
