@@ -57,4 +57,6 @@ public interface DisputeService {
 
     List<Dispute> getAll();
 
+    Dispute getOneByBillId(String billId);
+
 }

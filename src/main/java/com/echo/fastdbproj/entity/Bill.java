@@ -121,5 +121,6 @@ public class Bill implements Serializable {
         this.duration = duration;
     }
 
+
 }
 

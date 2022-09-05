@@ -1,5 +1,6 @@
 package com.echo.fastdbproj.entity;
 
+import java.io.Serial;
 import java.io.Serializable;
 
 /**
@@ -9,6 +10,7 @@ import java.io.Serializable;
  * @since 2022-08-27 21:46:11
  */
 public class ReserveBill implements Serializable {
+    @Serial
     private static final long serialVersionUID = -97584061955122657L;
 
     private String billId;

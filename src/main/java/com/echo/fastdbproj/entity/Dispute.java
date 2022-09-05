@@ -2,6 +2,7 @@ package com.echo.fastdbproj.entity;
 
 import com.echo.fastdbproj.util.UnitedLog;
 
+import java.io.Serial;
 import java.util.Date;
 import java.io.Serializable;
 import java.util.Set;
@@ -13,9 +14,10 @@ import java.util.Set;
  * @since 2022-08-11 14:08:11
  */
 public class Dispute implements Serializable {
+    @Serial
     private static final long serialVersionUID = 176092209243473113L;
     public static final Set<String> dispute_possible_status = Set.of(
-            "HANGING", "FINISHED", "CANCELED", "NEED_TO_BE_CHECKED"
+            "HANGING", "FINISHED", "CANCELED"
     );
 
     private String id;
@@ -34,6 +36,15 @@ public class Dispute implements Serializable {
 
     private String contents;
 
+    private String judgeResult;
+
+    public String getJudgeResult() {
+        return judgeResult;
+    }
+
+    public void setJudgeResult(String judgeResult) {
+        this.judgeResult = judgeResult;
+    }
 
     public String getId() {
         return id;
@@ -105,5 +116,19 @@ public class Dispute implements Serializable {
         this.contents = contents;
     }
 
+    @Override
+    public String toString() {
+        return "Dispute{" +
+                "id='" + id + '\'' +
+                ", time=" + time +
+                ", driverId='" + driverId + '\'' +
+                ", customerId='" + customerId + '\'' +
+                ", billId='" + billId + '\'' +
+                ", type='" + type + '\'' +
+                ", status='" + status + '\'' +
+                ", contents='" + contents + '\'' +
+                ", judgeResult='" + judgeResult + '\'' +
+                '}';
+    }
 }
 

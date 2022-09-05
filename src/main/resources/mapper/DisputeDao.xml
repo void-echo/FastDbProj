@@ -11,6 +11,7 @@
         <result property="type" column="type" jdbcType="VARCHAR"/>
         <result property="status" column="status" jdbcType="VARCHAR"/>
         <result property="contents" column="contents" jdbcType="VARCHAR"/>
+        <result property="judgeResult" column="judge_result" jdbcType="VARCHAR"/>
     </resultMap>
 
     <!--查询单个-->
@@ -22,7 +23,8 @@
                bill_id,
                type,
                status,
-               contents
+               contents,
+               judge_result
         from dispute
         where id = #{id}
     </select>
@@ -30,7 +32,7 @@
     <!--查询指定行数据-->
     <select id="queryAllByLimit" resultMap="DisputeMap">
         select
-        id, time, driver_id, customer_id, bill_id, type, status, contents
+        id, time, driver_id, customer_id, bill_id, type, status, contents, judge_result
         from dispute
         <where>
             <if test="id != null and id != ''">
@@ -56,6 +58,9 @@
             </if>
             <if test="contents != null and contents != ''">
                 and contents = #{contents}
+            </if>
+            <if test="judgeResult != null and judgeResult != ''">
+                and judge_result = #{judgeResult}
             </if>
         </where>
         limit #{pageable.offset}, #{pageable.pageSize}
@@ -90,33 +95,44 @@
             <if test="contents != null and contents != ''">
                 and contents = #{contents}
             </if>
+            <if test="judgeResult != null and judgeResult != ''">
+                and judge_result = #{judgeResult}
+            </if>
         </where>
     </select>
-    <select id="getAll" resultType="com.echo.fastdbproj.entity.Dispute">
-        select * from dispute;
+    <select id="getAll" resultType="com.echo.fastdbproj.entity.Dispute" resultMap="DisputeMap">
+        select *
+        from dispute;
+    </select>
+    <select id="getOneByBillIdDispute" resultType="com.echo.fastdbproj.entity.Dispute" resultMap="DisputeMap">
+        select *
+        from dispute
+        where bill_id = #{billId}
+        and status != 'CANCELED'
+        limit 1;
     </select>
 
     <!--新增所有列-->
     <insert id="insert" keyProperty="id" useGeneratedKeys="false">
-        insert into dispute(id, time, driver_id, customer_id, bill_id, type, status, contents)
-        values (#{id}, #{time}, #{driverId}, #{customerId}, #{billId}, #{type}, #{status}, #{contents})
+        insert into dispute(id, time, driver_id, customer_id, bill_id, type, status, contents, judge_result)
+        values (#{id}, #{time}, #{driverId}, #{customerId}, #{billId}, #{type}, #{status}, #{contents}, #{judgeResult})
     </insert>
 
     <insert id="insertBatch" keyProperty="id" useGeneratedKeys="false">
-        insert into dispute(id, time, driver_id, customer_id, bill_id, type, status, contents)
+        insert into dispute(id, time, driver_id, customer_id, bill_id, type, status, contents, judge_result)
         values
         <foreach collection="entities" item="entity" separator=",">
             (#{entity.id}, #{entity.time}, #{entity.driverId}, #{entity.customerId}, #{entity.billId}, #{entity.type},
-            #{entity.status}, #{entity.contents})
+            #{entity.status}, #{entity.contents}, #{entity.judgeResult})
         </foreach>
     </insert>
 
     <insert id="insertOrUpdateBatch" keyProperty="id" useGeneratedKeys="false">
-        insert into dispute(id, time, driver_id, customer_id, bill_id, type, status, contents)
+        insert into dispute(id, time, driver_id, customer_id, bill_id, type, status, contents, judge_result)
         values
         <foreach collection="entities" item="entity" separator=",">
             (#{entity.id}, #{entity.time}, #{entity.driverId}, #{entity.customerId}, #{entity.billId}, #{entity.type},
-            #{entity.status}, #{entity.contents})
+            #{entity.status}, #{entity.contents}, #{entity.judgeResult})
         </foreach>
         on duplicate key update
         time = values(time),
@@ -152,6 +168,9 @@
             </if>
             <if test="contents != null and contents != ''">
                 contents = #{contents},
+            </if>
+            <if test="judgeResult != null and judgeResult != ''">
+                judge_result = #{judgeResult}
             </if>
         </set>
         where id = #{id}

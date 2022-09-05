@@ -1,14 +1,14 @@
 spring:
-  datasource:
-    url: jdbc:mysql://localhost:3306/fastdbproj
-    username: root
-    password: 0-=0-=
-    driver-class-name: com.mysql.cj.jdbc.Driver
-  #  datasource:
-  #    url: jdbc:mysql://120.46.182.143:3306/user073db
-  #    username: DB_USER073
-  #    password: DB_USER073@123
-  #    driver-class-name: com.mysql.cj.jdbc.Driver
+#  datasource:
+#    url: jdbc:mysql://localhost:3306/fastdbproj
+#    username: root
+#    password: 0-=0-=
+#    driver-class-name: com.mysql.cj.jdbc.Driver
+    datasource:
+      url: jdbc:mysql://120.46.182.143:3306/user073db
+      username: DB_USER073
+      password: DB_USER073@123
+      driver-class-name: com.mysql.cj.jdbc.Driver
 
 
 ## 配置 MyBatis

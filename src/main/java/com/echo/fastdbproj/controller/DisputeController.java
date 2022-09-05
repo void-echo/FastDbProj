@@ -87,5 +87,11 @@ public class DisputeController {
     public ResponseEntity<List<Dispute>> getAll() {
         return ResponseEntity.ok(disputeService.getAll());
     }
+
+
+    @GetMapping("get-1-by-bill-id")
+    public ResponseEntity<Dispute> getOneByBillId(String billId) {
+        return ResponseEntity.ok(disputeService.getOneByBillId(billId));
+    }
 }
 

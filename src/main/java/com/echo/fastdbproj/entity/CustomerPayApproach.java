@@ -1,5 +1,6 @@
 package com.echo.fastdbproj.entity;
 
+import java.io.Serial;
 import java.io.Serializable;
 
 /**
@@ -9,6 +10,7 @@ import java.io.Serializable;
  * @since 2022-08-24 22:52:35
  */
 public class CustomerPayApproach implements Serializable {
+    @Serial
     private static final long serialVersionUID = 352381484575055223L;
 
     private String customerId;

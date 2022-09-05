@@ -1,5 +1,6 @@
 package com.echo.fastdbproj.entity;
 
+import java.io.Serial;
 import java.io.Serializable;
 
 /**
@@ -9,6 +10,7 @@ import java.io.Serializable;
  * @since 2022-08-11 14:08:12
  */
 public class Driver implements Serializable {
+    @Serial
     private static final long serialVersionUID = -73934158841942834L;
 
     private String id;

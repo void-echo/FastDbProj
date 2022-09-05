@@ -108,8 +108,9 @@
             </if>
         </where>
     </select>
-    <select id="getAll" resultType="com.echo.fastdbproj.entity.Bill">
-        select * from bill;
+
+    <select id="getAll" resultType="com.echo.fastdbproj.entity.Bill" resultMap="BillMap">
+        select id, time, duration, money, score, driver_id, customer_id, from_place, to_place, status from bill;
     </select>
 
     <!--新增所有列-->

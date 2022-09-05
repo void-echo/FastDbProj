@@ -82,5 +82,7 @@ public interface DisputeDao {
 
 
     List<Dispute> getAll();
+
+    Dispute getOneByBillIdDispute(String billId);
 }
 

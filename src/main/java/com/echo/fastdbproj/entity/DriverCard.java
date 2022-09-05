@@ -1,5 +1,6 @@
 package com.echo.fastdbproj.entity;
 
+import java.io.Serial;
 import java.io.Serializable;
 
 /**
@@ -9,6 +10,7 @@ import java.io.Serializable;
  * @since 2022-08-24 22:56:06
  */
 public class DriverCard implements Serializable {
+    @Serial
     private static final long serialVersionUID = 554719782112734187L;
 
     private String driverId;

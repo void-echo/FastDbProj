@@ -1,5 +1,6 @@
 package com.echo.fastdbproj.entity;
 
+import java.io.Serial;
 import java.io.Serializable;
 
 /**
@@ -9,6 +10,7 @@ import java.io.Serializable;
  * @since 2022-08-24 22:37:49
  */
 public class CreditCard implements Serializable {
+    @Serial
     private static final long serialVersionUID = 807007974928071402L;
 
     private String id;

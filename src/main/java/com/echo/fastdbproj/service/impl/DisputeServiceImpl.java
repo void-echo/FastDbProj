@@ -85,4 +85,9 @@ public class DisputeServiceImpl implements DisputeService {
     public List<Dispute> getAll() {
         return disputeDao.getAll();
     }
+
+    @Override
+    public Dispute getOneByBillId(String billId) {
+        return disputeDao.getOneByBillIdDispute(billId);
+    }
 }

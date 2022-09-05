@@ -117,17 +117,17 @@ public class MainController {
         var LngLatB = binUtils.parseLL2Double(bill.getToPlace());
         exe.execute(() -> {
             var msg =
-            """
-            {
-                "goOnReservedBill": true,
-                "preBillId": "%s",
-                "customerId": "%s",
-                "lng": %f,
-                "lat": %f,
-                "lng2": %f,
-                "lat2": %f
-            }
-            """.formatted(billId, customerId, LngLatA[0], LngLatA[1], LngLatB[0], LngLatB[1]);
+                    """
+                            {
+                                "goOnReservedBill": true,
+                                "preBillId": "%s",
+                                "customerId": "%s",
+                                "lng": %f,
+                                "lat": %f,
+                                "lng2": %f,
+                                "lat2": %f
+                            }
+                            """.formatted(billId, customerId, LngLatA[0], LngLatA[1], LngLatB[0], LngLatB[1]);
             try {
                 handler.send2driver(driverId, msg);
             } catch (IOException e) {
@@ -212,16 +212,16 @@ public class MainController {
                         } else {
                             if (!flag_YYK.get()) {
                                 var json_ = """
-                                {
-                                    "preBillId": "%s",
-                                    "customerId": "%s",
-                                    "lng": %f,
-                                    "lat": %f,
-                                    "lng2": %f,
-                                    "lat2": %f,
-                                    "isYoYaKu": true,
-                                    "dateTime": "%s"
-                                }""".formatted(preBillId, customerId, lng, lat, lng2, lat2, dateTime.get());
+                                        {
+                                            "preBillId": "%s",
+                                            "customerId": "%s",
+                                            "lng": %f,
+                                            "lat": %f,
+                                            "lng2": %f,
+                                            "lat2": %f,
+                                            "isYoYaKu": true,
+                                            "dateTime": "%s"
+                                        }""".formatted(preBillId, customerId, lng, lat, lng2, lat2, dateTime.get());
                                 handler.send2driver(driverId, json_);
                                 sleep(3000);
                             }
@@ -259,13 +259,13 @@ public class MainController {
             var lat = Double.parseDouble(driverPlace[1]);
             var msg =
                     """
-                    {
-                         "ID": "%s",
-                         "lng": %f,
-                         "lat": %f,
-                         "yyk": %b
-                    }
-                    """.formatted(driverId, lng, lat, yyk);
+                            {
+                                 "ID": "%s",
+                                 "lng": %f,
+                                 "lat": %f,
+                                 "yyk": %b
+                            }
+                            """.formatted(driverId, lng, lat, yyk);
             UnitedLog.print(msg);
             try {
                 handler.send2customer(customerId, msg);
@@ -292,12 +292,12 @@ public class MainController {
             billService.update(bill);
             var msg =
                     """
-                    {
-                        "ID": "%s",
-                        "YYK_GOT": true,
-                        "reservedBillId": "%s"
-                    }
-                    """.formatted(driverId, preBillId);
+                            {
+                                "ID": "%s",
+                                "YYK_GOT": true,
+                                "reservedBillId": "%s"
+                            }
+                            """.formatted(driverId, preBillId);
             try {
                 handler.send2customer(customerId, msg);
                 ReserveBill reserveBill = reserveBillService.queryById(preBillId);
@@ -339,28 +339,59 @@ public class MainController {
         dis.setTime(Timestamp.from(Instant.now()));
         exe.execute(() -> {
             var bill = billService.queryById(billId);
+            bill.setStatus("ON_DISPUTE");
             dis.setCustomerId(bill.getCustomerId());
             dis.setDriverId(bill.getDriverId());
             dis.setId(Instant.now().toString() + dis.getCustomerId());
             dis.setContents(contents);
             disputeService.insert(dis);
+            billService.update(bill);
         });
         return ResponseEntity.ok("success");
     }
 
 
     @RequestMapping("cancel-dispute")
-    public  ResponseEntity<String> cancelDispute(String disputeId) {
-        var dis = disputeService.queryById(disputeId);
+    public ResponseEntity<String> cancelDispute(String billId) {
+        var dis = disputeService.getOneByBillId(billId);
         if (dis == null) {
-            return ResponseEntity.ok("failed: cannot find dispute with id \"%s\"".formatted(disputeId));
+            return ResponseEntity.ok("failed: cannot find dispute with billId \"%s\"".formatted(billId));
         }
-        var billId = dis.getBillId();
+        dis.setStatus("CANCELED");
+        var disputeId = dis.getId();
         var bill = billService.queryById(billId);
         bill.setStatus("FINISHED");
         billService.update(bill);
-        boolean b = disputeService.deleteById(disputeId);
-        return b ? ResponseEntity.ok("success") : ResponseEntity.ok("failed: cannot delete dispute with id \"%s\"".formatted(disputeId)) ;
+        boolean b = disputeService.update(dis).getStatus().equals("CANCELED");
+        return b ? ResponseEntity.ok("success") :
+                ResponseEntity.ok("failed: cannot delete dispute with id \"%s\"".formatted(disputeId));
+    }
+
+    @RequestMapping("cancel-dispute-by-bill-id")
+    public ResponseEntity<String> cancelDisputeByBillId(String billId) {
+        var bill = billService.queryById(billId);
+        if (bill == null) {
+            return ResponseEntity.ok("failed: cannot find bill with billId \"%s\"".formatted(billId));
+        }
+        var dis = disputeService.getOneByBillId(billId);
+        if (dis == null) {
+            return ResponseEntity.ok("failed: cannot find dispute with billId \"%s\"".formatted(billId));
+        }
+        dis.setStatus("CANCELED");
+        bill.setStatus("FINISHED");
+        billService.update(bill);
+        disputeService.update(dis);
+        return ResponseEntity.ok("success");
+    }
+
+    @RequestMapping("give-judge")
+    public ResponseEntity<String> giveJudge(String disputeId, String judge) {
+        var dis = disputeService.queryById(disputeId);
+        dis.setJudgeResult(judge);
+        dis.setStatus("FINISHED");
+        UnitedLog.print(dis.toString());
+        disputeService.update(dis);
+        return ResponseEntity.ok("success");
     }
 
     // 顾客

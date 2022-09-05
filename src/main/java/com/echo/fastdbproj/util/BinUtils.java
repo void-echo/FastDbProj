@@ -65,7 +65,7 @@ public class BinUtils {
 
     public String calcTimeDuration(Instant start, Instant end) {
         Duration duration = Duration.between(start, end);
-        return duration.toString();
+        return "" + duration.toMinutes() + "分钟";
     }
 
     public String mixPreferPlace(String honRai, int times, String genZai) {
