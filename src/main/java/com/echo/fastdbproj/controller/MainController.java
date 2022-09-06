@@ -2,9 +2,11 @@ package com.echo.fastdbproj.controller;
 
 import com.echo.fastdbproj.MyWebSocketHandler;
 import com.echo.fastdbproj.entity.*;
+import com.echo.fastdbproj.entity.status.DayAndNum;
 import com.echo.fastdbproj.service.*;
 import com.echo.fastdbproj.util.BinUtils;
 import com.echo.fastdbproj.util.UnitedLog;
+import org.jetbrains.annotations.NotNull;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.http.RequestEntity;
@@ -18,10 +20,7 @@ import java.sql.Timestamp;
 import java.time.Instant;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
+import java.util.*;
 import java.util.concurrent.Executor;
 import java.util.concurrent.atomic.AtomicBoolean;
 
@@ -135,6 +134,76 @@ public class MainController {
             }
         });
         return ResponseEntity.ok("success");
+    }
+
+    @RequestMapping("status/get-bill-num-by-day")
+    public ResponseEntity<Map<String, Integer>> getDayAndBillNum() {
+        Map<String, Integer> map = new HashMap<>();
+        var bills = billService.getAll();
+        bills.forEach((bill) -> {
+            var billMonthDay = bill.getId().split(" ")[0];
+            if (map.containsKey(billMonthDay)) {
+                map.put(billMonthDay, map.get(billMonthDay) + 1);
+            } else {
+                map.put(billMonthDay, 1);
+            }
+        });
+        return ResponseEntity.ok(map);
+    }
+
+    @RequestMapping("status/get-bill-amount-by-day")
+    public ResponseEntity<Map<String, Double>> getDayAndBillAmount() {
+        Map<String, Double> map = new HashMap<>();
+        var bills = billService.getAll();
+        bills.forEach((bill) -> {
+            if (!(bill.getMoney() == null) && (!bill.getMoney().isBlank())) {
+                double v = Double.parseDouble(bill.getMoney());
+                var billMonthDay = bill.getId().split(" ")[0];
+                if (map.containsKey(billMonthDay)) {
+                    map.put(billMonthDay, map.get(billMonthDay) + v);
+                } else {
+                    map.put(billMonthDay, v);
+                }
+            }
+        });
+        return ResponseEntity.ok(map);
+    }
+
+
+    @RequestMapping("status/getId2Amount")
+    public ResponseEntity<Map<String, Double>> getId2Amount(@NotNull String type) {
+        Map<String, Double> map = new HashMap<>();
+        var bills = billService.getAll();
+        if (type.equals("customer")) {
+            bills.forEach((bill) -> {
+                if (!(bill.getCustomerId() == null) && (!bill.getCustomerId().isBlank())) {
+                    if (!(bill.getMoney() == null) && (!bill.getMoney().isBlank())) {
+                        double v = Double.parseDouble(bill.getMoney());
+                        var cus = bill.getCustomerId();
+                        if (map.containsKey(cus)) {
+                            map.put(cus, map.get(cus) + v);
+                        } else {
+                            map.put(cus, v);
+                        }
+                    }
+                }
+            });
+        } else {
+            bills.forEach((bill) -> {
+                if (!(bill.getDriverId() == null) && (!bill.getDriverId().isBlank())) {
+                    if (!(bill.getMoney() == null) && (!bill.getMoney().isBlank())) {
+                        double v = Double.parseDouble(bill.getMoney());
+                        var dri = bill.getDriverId();
+                        if (map.containsKey(dri)) {
+                            map.put(dri, map.get(dri) + v);
+                        } else {
+                            map.put(dri, v);
+                        }
+                    }
+                }
+            });
+        }
+        return ResponseEntity.ok(map);
     }
 
 
